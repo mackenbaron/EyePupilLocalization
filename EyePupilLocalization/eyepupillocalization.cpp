@@ -60,7 +60,10 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 
 	bool stop(false);
 	cv::Mat frame;
-	cv::namedWindow("Extracted Frame");
+	cv::Mat EyeShow = cv::imread("C:\\Users\\LZH\\Documents\\Visual Studio 2015\\Projects\\EyePupilLocalization\\EyePupilLocalization\\Resources\\eye.png", -1);
+	cv::resize(EyeShow, EyeShow, cv::Size(120, 60), 0, 0);
+	cv::namedWindow("Project");
+	cv::imshow("Project", EyeShow);
 	//cv::destroyAllWindows();
 	ui.customPlot_x->xAxis->setRange(0, numFrames);//ÉèÖÃºá×ø±ê
 	ui.customPlot_y->xAxis->setRange(0, numFrames);
