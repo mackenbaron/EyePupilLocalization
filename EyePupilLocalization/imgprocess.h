@@ -38,11 +38,11 @@ private:
 	cv::Mat Binary(const cv::Mat binaryimg, int value);//二值化处理
 	void EdgeDetect(cv::Mat &edgeimg);//边缘检测  
 	std::vector<cv::Vec3f> Hough(const cv::Mat midImage, int minradius, int maxradius);//hough变换   
-	cv::Mat PlotC(std::vector<cv::Vec3f> circles, cv::Mat &midImage);//画HOUGH变换的检测结果  
+	cv::Mat PlotC(std::vector<cv::Vec3f> circles, cv::Mat &midImage);//画出检测圆
 	void RemoveSmallRegion(cv::Mat& Src, cv::Mat& Dst, int AreaLimit, int CheckMode, int NeihborMode);//去除小面积
 	Box circleLeastFit(const std::vector<cv::Point> points);
 public:
-	std::vector<cv::Vec3f> circles;//整体霍夫圆
+	std::vector<cv::Vec3f> circles;//整体检测的瞳孔圆
 	ImgProcess(cv::Mat image, double ratio = 1.3) :inimg(image), EyeRatio(ratio) {}
 	void Process();
 	cv::Mat Outputimg();//输出结果  

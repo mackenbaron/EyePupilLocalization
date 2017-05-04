@@ -48,11 +48,7 @@ void ImgProcess::Process()
 	double temparea;
 	grayimg = GrayDetect(inimg);//得到灰度图,此时inimg没有被修改
 	EdgeDetect(grayimg);//边缘检测
-	//cv::imshow("e", grayimg);
-	//cv::waitKey(0);
 	DivideEye(grayimg);//左右眼分割
-	//cv::imshow("r", grayimg);
-	//cv::waitKey(0);
 	cv::findContours(Leye, Lcontours, Lhierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_NONE);//寻找左眼轮廓
 	cv::findContours(Reye, Rcontours, Rhierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_NONE);//寻找右眼轮廓
 	if (Lcontours.size() > 0)//左眼有轮廓
@@ -144,8 +140,6 @@ cv::Mat ImgProcess::GrayDetect(cv::Mat grayimg)
 	
 	//RemoveSmallRegion(grayout, grayout, 1000, 1, 0);//去除白区域
 	//RemoveSmallRegion(grayout, grayout, 1000, 0, 0);//可以不去除小面积
-	//cv::imshow("r", grayout);
-	//cv::waitKey(0);
 	return grayout;
 }
 
@@ -228,7 +222,7 @@ std::vector<cv::Vec3f> ImgProcess::Hough(const cv::Mat midImage, int minradius, 
 	return circles;
 }
 
-//画HOUGH变换的检测结果  
+///画出检测圆 
 cv::Mat ImgProcess::PlotC(std::vector<cv::Vec3f> circles, cv::Mat &midImage)
 {
 	for (size_t i = 0; i < circles.size(); i++)

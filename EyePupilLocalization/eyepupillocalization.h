@@ -25,7 +25,6 @@ private:
 	cv::Mat Reye;//сряш
 	QImage Limg;
 	QImage Rimg;
-	//void DivideEye(const cv::Mat divideimg);
 	QLabel *label_name;
 	QLabel *label_time;
 };

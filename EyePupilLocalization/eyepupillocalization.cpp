@@ -7,20 +7,20 @@ EyePupilLocalization::EyePupilLocalization(QWidget *parent)
 
 	//初始化曲线
 	ui.customPlot_x->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |
-		QCP::iSelectLegend | QCP::iSelectPlottables);
-	ui.customPlot_x->xAxis->setLabel("TIME");
-	ui.customPlot_x->yAxis->setLabel("LEVEL");
-	ui.customPlot_x->yAxis->setRange(-30, 30);
-	ui.customPlot_x->addGraph();
-	ui.customPlot_x->graph(0)->setPen(QPen(Qt::red));
-	ui.customPlot_x->addGraph();
-	ui.customPlot_x->graph(1)->setPen(QPen(Qt::blue));
+		QCP::iSelectLegend | QCP::iSelectPlottables);//创建曲线范围
+	ui.customPlot_x->xAxis->setLabel("TIME");//设置横坐标
+	ui.customPlot_x->yAxis->setLabel("LEVEL");//设置纵坐标
+	ui.customPlot_x->yAxis->setRange(-50, 50);//设置纵坐标范围
+	ui.customPlot_x->addGraph();//增加第一条曲线
+	ui.customPlot_x->graph(0)->setPen(QPen(Qt::red));//设置为红色
+	ui.customPlot_x->addGraph();//在增加一条曲线
+	ui.customPlot_x->graph(1)->setPen(QPen(Qt::blue));//设置为蓝色
 
 	ui.customPlot_y->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |
 		QCP::iSelectLegend | QCP::iSelectPlottables);
 	ui.customPlot_y->xAxis->setLabel("TIME");
 	ui.customPlot_y->yAxis->setLabel("VERTICAL");
-	ui.customPlot_y->yAxis->setRange(-30, 30);
+	ui.customPlot_y->yAxis->setRange(-50, 50);//设置纵坐标
 	ui.customPlot_y->addGraph();
 	ui.customPlot_y->graph(0)->setPen(QPen(Qt::red));
 	ui.customPlot_y->addGraph();
@@ -30,7 +30,7 @@ EyePupilLocalization::EyePupilLocalization(QWidget *parent)
 	label_name->setText("    DESIGNED BY HJY     ");
 	ui.statusBar->addWidget(label_name);
 	label_time = new QLabel;
-	label_time->setText("     APRIL , 2017  ");
+	label_time->setText("     May , 2017  ");
 	ui.statusBar->addWidget(label_time);
 }
 
@@ -43,14 +43,15 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 {
 	fileName = QFileDialog::getOpenFileName(
 		this,
-		"Open Document",
+		"Open Video",
 		QDir::currentPath(),
-		"Video files(*.avi);;All files(*.*)"
+		"Video files(*.avi)"
 	);
 	cv::VideoCapture capture(fileName.toStdString());
 	if (!capture.isOpened())
 	{
-		qDebug() << "未打开视频" ;
+		//qDebug() << "未打开视频" ;
+		QMessageBox::information(this, "Warn", "No video selected");
 		return;
 	}
 	//double rate = capture.get(CV_CAP_PROP_FPS);
@@ -61,25 +62,20 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 	bool stop(false);
 	cv::Mat frame;
 	cv::Mat EyeShow = cv::imread("C:\\Users\\LZH\\Documents\\Visual Studio 2015\\Projects\\EyePupilLocalization\\EyePupilLocalization\\Resources\\eye.png", -1);
-	cv::resize(EyeShow, EyeShow, cv::Size(120, 60), 0, 0);
+	cv::resize(EyeShow, EyeShow, cv::Size(120, 60), 0, 0);//设置大小
 	cv::namedWindow("Project");
 	cv::imshow("Project", EyeShow);
 	//cv::destroyAllWindows();
 	ui.customPlot_x->xAxis->setRange(0, numFrames);//设置横坐标
 	ui.customPlot_y->xAxis->setRange(0, numFrames);//设置横坐标
 
-	bool IsReyeCenter(false);
-	bool IsLeyeCenter(false);
-	int FrameNum = 0;
-	CvPoint ReyeCenter;
-	CvPoint LeyeCenter;
+	bool IsReyeCenter(false);//是否右眼出来第一个定位坐标
+	bool IsLeyeCenter(false);//是否左眼出来第一个定位坐标
+	int FrameNum = 0;//视频处理帧的次数
+	CvPoint ReyeCenter;//右眼中心
+	CvPoint LeyeCenter;//左眼中心
 
-	int LminRadius = 5;
-	int LmaxRadius = 30;
-	int RminRadius = 5;
-	int RmaxRadius = 30;
-
-	cv::Mat Eyetest = cv::imread("C:\\Users\\LZH\\Pictures\\testeye\\1.png", -1);
+	//cv::Mat Eyetest = cv::imread("C:\\Users\\LZH\\Pictures\\testeye\\1.png", -1);
 
 	while (!stop)
 	{
@@ -93,6 +89,7 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 
 		Leye = pro.OutLeye();
 		Reye = pro.OutReye();
+
 		Limg = Mat2QImage(Leye);
 		Rimg = Mat2QImage(Reye);
 		ui.label_Leye->setPixmap(QPixmap::fromImage(Limg));//显示出来
@@ -101,7 +98,7 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 		//插入坐标
 		for (cv::Vec3f box : pro.circles)
 		{
-			if (box[0] < frame.cols / 2)
+			if (box[0] < frame.cols / 2)//X坐标小于一半位置为左眼
 			{
 				//左眼
 				ui.lcdNumber_Lx->display(floor(box[0]));

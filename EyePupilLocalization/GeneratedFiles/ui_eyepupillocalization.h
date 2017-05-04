@@ -67,7 +67,7 @@ public:
     {
         if (EyePupilLocalizationClass->objectName().isEmpty())
             EyePupilLocalizationClass->setObjectName(QStringLiteral("EyePupilLocalizationClass"));
-        EyePupilLocalizationClass->resize(525, 578);
+        EyePupilLocalizationClass->resize(525, 644);
         centralWidget = new QWidget(EyePupilLocalizationClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         horizontalLayoutWidget_2 = new QWidget(centralWidget);
@@ -187,10 +187,10 @@ public:
         label_Leye->setGeometry(QRect(20, 80, 191, 61));
         customPlot_x = new QCustomPlot(centralWidget);
         customPlot_x->setObjectName(QStringLiteral("customPlot_x"));
-        customPlot_x->setGeometry(QRect(20, 290, 481, 111));
+        customPlot_x->setGeometry(QRect(20, 290, 481, 141));
         customPlot_y = new QCustomPlot(centralWidget);
         customPlot_y->setObjectName(QStringLiteral("customPlot_y"));
-        customPlot_y->setGeometry(QRect(20, 410, 481, 111));
+        customPlot_y->setGeometry(QRect(20, 440, 481, 141));
         EyePupilLocalizationClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(EyePupilLocalizationClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));
