@@ -42,15 +42,19 @@ cv::Mat ImgProcess::OutReye()//输出右眼
 }
 
 //瞳孔定位处理
-void ImgProcess::Process(int* transmit)
+void ImgProcess::Process()
 {
 	cv::Mat grayimg;
 	double temparea;
 	grayimg = GrayDetect(inimg);//得到灰度图,此时inimg没有被修改
 	EdgeDetect(grayimg);//边缘检测
+	//cv::imshow("e", grayimg);
+	//cv::waitKey(0);
 	DivideEye(grayimg);//左右眼分割
-	cv::findContours(Leye, Lcontours, Lhierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);//寻找左眼轮廓
-	cv::findContours(Reye, Rcontours, Rhierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);//寻找右眼轮廓
+	//cv::imshow("r", grayimg);
+	//cv::waitKey(0);
+	cv::findContours(Leye, Lcontours, Lhierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_NONE);//寻找左眼轮廓
+	cv::findContours(Reye, Rcontours, Rhierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_NONE);//寻找右眼轮廓
 	if (Lcontours.size() > 0)//左眼有轮廓
 	{
 		for (int i = 0; i < Lcontours.size(); ++i)
@@ -67,7 +71,16 @@ void ImgProcess::Process(int* transmit)
 		Lrect = cv::boundingRect(Lcontours[LmaxAreaIndex]);
 		if ((Lrect.width / (float)Lrect.height) < EyeRatio && (Lrect.height / (float)Lrect.width) < EyeRatio && Lrect.width > 15 && Lrect.height > 15)//左眼闭眼检测
 		{
-			Lcircles = Hough(Leye, transmit[0], transmit[1]);
+			Box Lbox = circleLeastFit(Lcontours[LmaxAreaIndex]);
+			if (Lbox.r != 0)
+			{
+				//如果返回不为0
+				cv::Vec3f Lpoint;//左眼圆心
+				Lpoint[0] = Lbox.x;
+				Lpoint[1] = Lbox.y;
+				Lpoint[2] = Lbox.r;
+				circles.push_back(Lpoint);
+			}
 		}
 	}
 	if (Rcontours.size() > 0)//右眼有轮廓
@@ -86,67 +99,19 @@ void ImgProcess::Process(int* transmit)
 		Rrect = cv::boundingRect(Rcontours[RmaxAreaIndex]);
 		if ((Rrect.width / (float)Rrect.height) < EyeRatio && (Rrect.height / (float)Rrect.width) < EyeRatio && Rrect.width > 15 && Rrect.height > 15)//右眼闭眼检测
 		{
-			Rcircles = Hough(Reye, transmit[2], transmit[3]);
+			Box Rbox = circleLeastFit(Rcontours[RmaxAreaIndex]);
+			if (Rbox.r != 0)
+			{
+				//如果返回不是0
+				cv::Vec3f Rpoint;//右眼圆心
+				Rpoint[0] = Rbox.x + inimg.cols / 2;
+				Rpoint[1] = Rbox.y;
+				Rpoint[2] = Rbox.r;
+				circles.push_back(Rpoint);
+			}
 		}
 	}
 	
-	int MaxRadius = 0;//最大半径
-	size_t MaxNum = 0;
-	if (Lcircles.size() > 0)
-	{
-		for (size_t i = 0; i < Lcircles.size(); ++i)
-		{
-			if (cvRound(Lcircles[i][2]) >= MaxRadius)
-			{
-				MaxNum = i;
-			}
-		}
-		if (transmit[4] == 0 && transmit[5] == 0 && Lcircles[MaxNum][0] > 5)
-		{
-			//第一次情况
-			transmit[4] = Lcircles[MaxNum][0];//圆心x坐标
-			transmit[5] = Lcircles[MaxNum][1];//圆心y坐标
-		}
-		else
-		{
-			if (abs(transmit[4] - Lcircles[MaxNum][0]) < 30 && abs(transmit[5] - Lcircles[MaxNum][1]) < 30)
-			{
-				//圆心半径二次检验
-				circles.push_back(Lcircles[MaxNum]);//左眼最大霍夫圆
-				transmit[0] = Lcircles[MaxNum][2] - 8;
-				transmit[1] = Lcircles[MaxNum][2] + 8;
-			}
-		}
-	}
-	if (Rcircles.size() > 0)
-	{
-		MaxRadius = 0;//重新初始化
-		MaxNum = 0;
-		for (size_t i = 0; i < Rcircles.size(); ++i)
-		{
-			Rcircles[i][0] += inimg.cols / 2 - 1;
-			if (cvRound(Rcircles[i][2]) >= MaxRadius)
-			{
-				MaxNum = i;
-			}
-		}
-		if (transmit[6] == 0 && transmit[7] == 0 && Rcircles[MaxNum][0] > 5)
-		{
-			//第一次情况
-			transmit[6] = Rcircles[MaxNum][0];//圆心x坐标
-			transmit[7] = Rcircles[MaxNum][1];//圆心y坐标
-		}
-		else
-		{
-			if (abs(transmit[6] - Rcircles[MaxNum][0]) < 30 && abs(transmit[7] - Rcircles[MaxNum][1]) < 30)
-			{
-				//圆心半径二次检验
-				circles.push_back(Rcircles[MaxNum]);//右眼最大霍夫圆
-				transmit[2] = Rcircles[MaxNum][2] - 8;
-				transmit[3] = Rcircles[MaxNum][2] + 8;
-			}
-		}
-	}
 	if (circles.size() > 0)
 	{
 		outimg = PlotC(circles, inimg);
@@ -173,9 +138,14 @@ cv::Mat ImgProcess::GrayDetect(cv::Mat grayimg)
 	cv::Mat grayout;
 	cvtColor(grayimg, grayimg, CV_BGR2GRAY);//灰度化处理
 	medianBlur(grayimg, grayimg, 9);//中值滤波
-	grayout = Binary(grayimg, 43);//二值化处理
-	//RemoveSmallRegion(grayout, grayout, 50, 0, 0);//可以不去除小面积
-	RemoveSmallRegion(grayout, grayout, 250, 1, 0);//去除白区域
+	cv::blur(grayimg, grayimg, cv::Size(9, 9));
+	grayout = Binary(grayimg, 50);//二值化处理
+	
+	
+	//RemoveSmallRegion(grayout, grayout, 1000, 1, 0);//去除白区域
+	//RemoveSmallRegion(grayout, grayout, 1000, 0, 0);//可以不去除小面积
+	//cv::imshow("r", grayout);
+	//cv::waitKey(0);
 	return grayout;
 }
 
@@ -184,6 +154,62 @@ cv::Mat ImgProcess::Binary(const cv::Mat binaryimg, int value)
 {
 	cv::Mat binaryout = binaryimg < value;
 	return binaryout;
+}
+
+//拟合找圆
+Box ImgProcess::circleLeastFit(const std::vector<cv::Point> points)
+{
+	Box box;
+	box.x = 0.0f;
+	box.y = 0.0f;
+	box.r = 0.0f;
+	int Sum = points.size();
+	//如果少于三点，不能拟合圆，直接返回
+	if (Sum < 3)
+	{
+		return box;
+	}
+
+	int i = 0;
+	double X1 = 0;
+	double Y1 = 0;
+	double X2 = 0;
+	double Y2 = 0;
+	double X3 = 0;
+	double Y3 = 0;
+	double X1Y1 = 0;
+	double X1Y2 = 0;
+	double X2Y1 = 0;
+
+	for (i = 0; i < Sum; ++i)
+	{
+		X1 += points[i].x;
+		Y1 += points[i].y;
+		X2 += points[i].x*points[i].x;
+		Y2 += points[i].y*points[i].y;
+		X3 += points[i].x*points[i].x*points[i].x;
+		Y3 += points[i].y*points[i].y*points[i].y;
+		X1Y1 += points[i].x*points[i].y;
+		X1Y2 += points[i].x*points[i].y*points[i].y;
+		X2Y1 += points[i].x*points[i].x*points[i].y;
+	}
+	double C, D, E, G, H, N;
+	double a, b, c;
+	N = points.size();
+	C = N*X2 - X1*X1;
+	D = N*X1Y1 - X1*Y1;
+	E = N*X3 + N*X1Y2 - (X2 + Y2)*X1;
+	G = N*Y2 - Y1*Y1;
+	H = N*X2Y1 + N*Y3 - (X2 + Y2)*Y1;
+	a = (H*D - E*G) / (C*G - D*D);
+	b = (H*C - E*D) / (D*D - G*C);
+	c = -(a*X1 + b*Y1 + X2 + Y2) / N;
+
+	box.x = a / (-2);
+	box.y = b / (-2);
+	box.r = sqrt(a*a + b*b - 4 * c) / 2;
+
+	return box;
 }
 
 //边缘检测
@@ -198,7 +224,7 @@ void ImgProcess::EdgeDetect(cv::Mat &edgeimg)
 std::vector<cv::Vec3f> ImgProcess::Hough(const cv::Mat midImage, int minradius, int maxradius)
 {
 	std::vector<cv::Vec3f> circles;
-	HoughCircles(midImage, circles, CV_HOUGH_GRADIENT, 3, 5, 100, 30, minradius, maxradius);
+	HoughCircles(midImage, circles, CV_HOUGH_GRADIENT, 3, 5, 240, 100, minradius, maxradius);
 	return circles;
 }
 
@@ -343,3 +369,5 @@ void ImgProcess::RemoveSmallRegion(cv::Mat& Src, cv::Mat& Dst, int AreaLimit, in
 
 	std::cout << RemoveCount << " objects removed." << std::endl;
 }
+
+

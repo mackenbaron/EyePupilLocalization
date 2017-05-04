@@ -66,7 +66,7 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 	cv::imshow("Project", EyeShow);
 	//cv::destroyAllWindows();
 	ui.customPlot_x->xAxis->setRange(0, numFrames);//设置横坐标
-	ui.customPlot_y->xAxis->setRange(0, numFrames);
+	ui.customPlot_y->xAxis->setRange(0, numFrames);//设置横坐标
 
 	bool IsReyeCenter(false);
 	bool IsLeyeCenter(false);
@@ -79,8 +79,7 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 	int RminRadius = 5;
 	int RmaxRadius = 30;
 
-	int Transmit[8] = { 5,30,5,30,0,0,0,0 };//前四个值分别代表左眼最小、最大半径，右眼最小、最大半径
-	                                        //后四个值分别代表每帧左眼圆心X、Y坐标，右眼圆心X、Y坐标
+	cv::Mat Eyetest = cv::imread("C:\\Users\\LZH\\Pictures\\testeye\\1.png", -1);
 
 	while (!stop)
 	{
@@ -90,11 +89,10 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 		}
 		++FrameNum;
 		ImgProcess pro(frame,1.5);
-		pro.Process(Transmit);
+		pro.Process();
 
 		Leye = pro.OutLeye();
 		Reye = pro.OutReye();
-
 		Limg = Mat2QImage(Leye);
 		Rimg = Mat2QImage(Reye);
 		ui.label_Leye->setPixmap(QPixmap::fromImage(Limg));//显示出来
