@@ -84,7 +84,7 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 			break;
 		}
 		++FrameNum;
-		ImgProcess pro(frame,1.5);
+		ImgProcess pro(frame,1.7);
 		pro.Process();
 
 		Leye = pro.OutLeye();

@@ -67,12 +67,12 @@ public:
     {
         if (EyePupilLocalizationClass->objectName().isEmpty())
             EyePupilLocalizationClass->setObjectName(QStringLiteral("EyePupilLocalizationClass"));
-        EyePupilLocalizationClass->resize(525, 644);
+        EyePupilLocalizationClass->resize(525, 711);
         centralWidget = new QWidget(EyePupilLocalizationClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         horizontalLayoutWidget_2 = new QWidget(centralWidget);
         horizontalLayoutWidget_2->setObjectName(QStringLiteral("horizontalLayoutWidget_2"));
-        horizontalLayoutWidget_2->setGeometry(QRect(310, 150, 191, 121));
+        horizontalLayoutWidget_2->setGeometry(QRect(310, 220, 191, 121));
         horizontalLayout_2 = new QHBoxLayout(horizontalLayoutWidget_2);
         horizontalLayout_2->setSpacing(6);
         horizontalLayout_2->setContentsMargins(11, 11, 11, 11);
@@ -128,10 +128,10 @@ public:
         label_10->setGeometry(QRect(380, 50, 54, 12));
         label_Reye = new QLabel(centralWidget);
         label_Reye->setObjectName(QStringLiteral("label_Reye"));
-        label_Reye->setGeometry(QRect(310, 80, 191, 61));
+        label_Reye->setGeometry(QRect(310, 80, 191, 131));
         horizontalLayoutWidget = new QWidget(centralWidget);
         horizontalLayoutWidget->setObjectName(QStringLiteral("horizontalLayoutWidget"));
-        horizontalLayoutWidget->setGeometry(QRect(20, 150, 191, 121));
+        horizontalLayoutWidget->setGeometry(QRect(20, 220, 191, 121));
         horizontalLayout = new QHBoxLayout(horizontalLayoutWidget);
         horizontalLayout->setSpacing(6);
         horizontalLayout->setContentsMargins(11, 11, 11, 11);
@@ -184,13 +184,13 @@ public:
         label_9->setGeometry(QRect(90, 50, 54, 12));
         label_Leye = new QLabel(centralWidget);
         label_Leye->setObjectName(QStringLiteral("label_Leye"));
-        label_Leye->setGeometry(QRect(20, 80, 191, 61));
+        label_Leye->setGeometry(QRect(40, 80, 191, 131));
         customPlot_x = new QCustomPlot(centralWidget);
         customPlot_x->setObjectName(QStringLiteral("customPlot_x"));
-        customPlot_x->setGeometry(QRect(20, 290, 481, 141));
+        customPlot_x->setGeometry(QRect(20, 360, 481, 141));
         customPlot_y = new QCustomPlot(centralWidget);
         customPlot_y->setObjectName(QStringLiteral("customPlot_y"));
-        customPlot_y->setGeometry(QRect(20, 440, 481, 141));
+        customPlot_y->setGeometry(QRect(20, 510, 481, 141));
         EyePupilLocalizationClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(EyePupilLocalizationClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));

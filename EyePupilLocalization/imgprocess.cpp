@@ -1,7 +1,5 @@
 #include "imgprocess.h"  
 
-//RadiusRange ImgProcess::Radiusrange = { 5,30,5,30 };
-
 //Êä³ö½á¹û
 cv::Mat ImgProcess::Outputimg()
 {
@@ -65,7 +63,7 @@ void ImgProcess::Process()
 		}
 		//±ÕÑÛ¼ì²â
 		Lrect = cv::boundingRect(Lcontours[LmaxAreaIndex]);
-		if ((Lrect.width / (float)Lrect.height) < EyeRatio && (Lrect.height / (float)Lrect.width) < EyeRatio && Lrect.width > 15 && Lrect.height > 15)//×óÑÛ±ÕÑÛ¼ì²â
+		if ((Lrect.width / (float)Lrect.height) < EyeRatio && (Lrect.height / (float)Lrect.width) < EyeRatio && Lrect.width > 0 && Lrect.height > 0)//×óÑÛ±ÕÑÛ¼ì²â
 		{
 			Box Lbox = circleLeastFit(Lcontours[LmaxAreaIndex]);
 			if (Lbox.r != 0)
@@ -93,7 +91,7 @@ void ImgProcess::Process()
 		}
 		//±ÕÑÛ¼ì²â
 		Rrect = cv::boundingRect(Rcontours[RmaxAreaIndex]);
-		if ((Rrect.width / (float)Rrect.height) < EyeRatio && (Rrect.height / (float)Rrect.width) < EyeRatio && Rrect.width > 15 && Rrect.height > 15)//ÓÒÑÛ±ÕÑÛ¼ì²â
+		if ((Rrect.width / (float)Rrect.height) < EyeRatio && (Rrect.height / (float)Rrect.width) < EyeRatio && Rrect.width > 0 && Rrect.height > 0)//ÓÒÑÛ±ÕÑÛ¼ì²â
 		{
 			Box Rbox = circleLeastFit(Rcontours[RmaxAreaIndex]);
 			if (Rbox.r != 0)

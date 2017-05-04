@@ -1,7 +1,6 @@
 #ifndef IMGPROCESS_H  
 #define IMGPROCESS_H  
-#include <opencv2/opencv.hpp>  
-#include <iostream>  
+#include <opencv2/opencv.hpp>   
 #include <stdio.h>  
 #include <vector>
 #include <opencv2/core/core.hpp> 
