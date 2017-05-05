@@ -42,7 +42,8 @@ private:
 	Box circleLeastFit(const std::vector<cv::Point> points);
 public:
 	std::vector<cv::Vec3f> circles;//整体检测的瞳孔圆
-	ImgProcess(cv::Mat image, double ratio = 1.3) :inimg(image), EyeRatio(ratio) {}
+
+	ImgProcess(cv::Mat image, double ratio = 1.3) :inimg(image), EyeRatio(ratio) {}//构造函数
 	void Process();
 	cv::Mat Outputimg();//输出结果  
 	cv::Mat OutLeye();//输出左眼  

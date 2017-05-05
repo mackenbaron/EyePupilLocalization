@@ -126,7 +126,7 @@ void ImgProcess::Process()
 	}
 }
 
-//灰度处理
+//灰度处理z
 cv::Mat ImgProcess::GrayDetect(cv::Mat grayimg)
 {
 	cv::Mat grayout;
