@@ -148,7 +148,7 @@ cv::Mat ImgProcess::Binary(const cv::Mat binaryimg, int value)
 	return binaryout;
 }
 
-//ÄâºÏÕÒÔ²
+//ÄâºÏÔ²¼ì²â
 Box ImgProcess::circleLeastFit(const std::vector<cv::Point> points)
 {
 	Box box;

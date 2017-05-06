@@ -183,11 +183,24 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>360</y>
+      <y>350</y>
       <width>481</width>
       <height>141</height>
      </rect>
     </property>
+    <widget class="QCustomPlot" name="customPlot_print" native="true">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>30</y>
+       <width>680</width>
+       <height>250</height>
+      </rect>
+     </property>
+    </widget>
    </widget>
    <widget class="QCustomPlot" name="customPlot_y" native="true">
     <property name="geometry">
@@ -197,6 +210,19 @@
       <width>481</width>
       <height>141</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Button_print">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>10</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>打印</string>
     </property>
    </widget>
   </widget>
@@ -249,8 +275,25 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>Button_print</sender>
+   <signal>clicked()</signal>
+   <receiver>EyePupilLocalizationClass</receiver>
+   <slot>on_pushButton_print_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>404</x>
+     <y>61</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>288</x>
+     <y>83</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_pushButton_openvideo_clicked()</slot>
+  <slot>on_pushButton_print_clicked()</slot>
  </slots>
 </ui>

@@ -39,7 +39,7 @@ private:
 	std::vector<cv::Vec3f> Hough(const cv::Mat midImage, int minradius, int maxradius);//hough变换   
 	cv::Mat PlotC(std::vector<cv::Vec3f> circles, cv::Mat &midImage);//画出检测圆
 	void RemoveSmallRegion(cv::Mat& Src, cv::Mat& Dst, int AreaLimit, int CheckMode, int NeihborMode);//去除小面积
-	Box circleLeastFit(const std::vector<cv::Point> points);
+	Box circleLeastFit(const std::vector<cv::Point> points);//拟合圆检测
 public:
 	std::vector<cv::Vec3f> circles;//整体检测的瞳孔圆
 

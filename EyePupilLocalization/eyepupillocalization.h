@@ -17,7 +17,7 @@ public:
 
 public slots:
 	void on_pushButton_openvideo_clicked();
-
+	void on_pushButton_print_clicked();
 private:
 	Ui::EyePupilLocalizationClass ui;
 	QString fileName;
@@ -27,6 +27,19 @@ private:
 	QImage Rimg;
 	QLabel *label_name;
 	QLabel *label_time;
+	QPrinter printer;
+	//QPrintPreviewDialog preview;
+
+	//保存上次信息
+	int OldFrameNum = 0;
+	QVector<double> OldFrameL;
+	QVector<double> OldFrameR;
+	QVector<double> OldReyeX;
+	QVector<double> OldReyeY;
+	QVector<double> OldLeyeX;
+	QVector<double> OldLeyeY;
+
+	void plotWight(bool IsLevel);
 };
 
 #endif // EYEPUPILLOCALIZATION_H

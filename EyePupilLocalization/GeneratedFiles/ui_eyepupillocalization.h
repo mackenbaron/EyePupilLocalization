@@ -58,7 +58,9 @@ public:
     QLabel *label_9;
     QLabel *label_Leye;
     QCustomPlot *customPlot_x;
+    QCustomPlot *customPlot_print;
     QCustomPlot *customPlot_y;
+    QPushButton *Button_print;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -187,10 +189,17 @@ public:
         label_Leye->setGeometry(QRect(40, 80, 191, 131));
         customPlot_x = new QCustomPlot(centralWidget);
         customPlot_x->setObjectName(QStringLiteral("customPlot_x"));
-        customPlot_x->setGeometry(QRect(20, 360, 481, 141));
+        customPlot_x->setGeometry(QRect(20, 350, 481, 141));
+        customPlot_print = new QCustomPlot(customPlot_x);
+        customPlot_print->setObjectName(QStringLiteral("customPlot_print"));
+        customPlot_print->setEnabled(true);
+        customPlot_print->setGeometry(QRect(0, 30, 680, 250));
         customPlot_y = new QCustomPlot(centralWidget);
         customPlot_y->setObjectName(QStringLiteral("customPlot_y"));
         customPlot_y->setGeometry(QRect(20, 510, 481, 141));
+        Button_print = new QPushButton(centralWidget);
+        Button_print->setObjectName(QStringLiteral("Button_print"));
+        Button_print->setGeometry(QRect(390, 10, 111, 31));
         EyePupilLocalizationClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(EyePupilLocalizationClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -205,6 +214,7 @@ public:
 
         retranslateUi(EyePupilLocalizationClass);
         QObject::connect(Button_openvideo, SIGNAL(clicked()), EyePupilLocalizationClass, SLOT(on_pushButton_openvideo_clicked()));
+        QObject::connect(Button_print, SIGNAL(clicked()), EyePupilLocalizationClass, SLOT(on_pushButton_print_clicked()));
 
         QMetaObject::connectSlotsByName(EyePupilLocalizationClass);
     } // setupUi
@@ -223,6 +233,7 @@ public:
         label_3->setText(QApplication::translate("EyePupilLocalizationClass", "\347\236\263\345\255\224\345\215\212\345\276\204", Q_NULLPTR));
         label_9->setText(QApplication::translate("EyePupilLocalizationClass", "\345\267\246\347\234\274", Q_NULLPTR));
         label_Leye->setText(QString());
+        Button_print->setText(QApplication::translate("EyePupilLocalizationClass", "\346\211\223\345\215\260", Q_NULLPTR));
     } // retranslateUi
 
 };
