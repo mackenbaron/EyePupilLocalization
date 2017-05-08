@@ -225,6 +225,19 @@
      <string>打印</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="Button_opencamera">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>10</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>打开摄像头</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -291,9 +304,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>Button_opencamera</sender>
+   <signal>clicked()</signal>
+   <receiver>EyePupilLocalizationClass</receiver>
+   <slot>on_pushButton_opencamera_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>285</x>
+     <y>72</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>239</x>
+     <y>118</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_pushButton_openvideo_clicked()</slot>
   <slot>on_pushButton_print_clicked()</slot>
+  <slot>on_pushButton_opencamera_clicked()</slot>
  </slots>
 </ui>

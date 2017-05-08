@@ -56,7 +56,7 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 	cv::VideoCapture capture(fileName.toStdString());
 	if (!capture.isOpened())
 	{
-		QMessageBox::information(this, "Warn", "No video selected");
+		QMessageBox::warning(this, "Warn", "No video selected");
 		return;
 	}
 	//double rate = capture.get(CV_CAP_PROP_FPS);
@@ -91,6 +91,10 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 			break;
 		}
 		++FrameNum;
+		if (FrameNum == numFrames)
+		{
+			stop = true;
+		}
 		ImgProcess pro(frame,1.7);
 		pro.Process();
 
@@ -166,6 +170,46 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 		ui.customPlot_y->replot();
 		cv::waitKey(1);
 	}
+	cv::destroyWindow("Project");
+}
+
+//打开摄像头
+void EyePupilLocalization::on_pushButton_opencamera_clicked()
+{
+	cv::VideoCapture vcap;
+	QMessageBox::StandardButton rb = QMessageBox::question(NULL, "Choose", "Do you want to open PC camera?", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+	if (rb == QMessageBox::Yes)
+	{
+		if (!vcap.open(0))
+		{
+			QMessageBox::warning(this, "Warn", "No Camera");
+			return;
+		}
+	}
+	else
+	{
+		if (!vcap.open(videoStreamAddress))
+		{
+			QMessageBox::warning(this, "Warn", "No Camera");
+			return;
+		}
+	}
+	cv::namedWindow("Camera Video");
+	bool stop(false);
+	cv::Mat frame;
+	while (!stop)
+	{
+		if (!vcap.read(frame))
+		{
+			break;
+		}
+		cv::imshow("Camera Video", frame);
+		if (cv::waitKey(5) == 27)
+		{
+			break;//按下ESE退出
+		}
+	}
+	cv::destroyWindow("Camera Video");
 }
 
 //打印

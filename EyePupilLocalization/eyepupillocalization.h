@@ -18,8 +18,10 @@ public:
 public slots:
 	void on_pushButton_openvideo_clicked();
 	void on_pushButton_print_clicked();
+	void on_pushButton_opencamera_clicked();
 private:
 	Ui::EyePupilLocalizationClass ui;
+	std::string videoStreamAddress = "http://192.168.1.233:8080/?action=stream?dummy=param.mjpg";
 	QString fileName;
 	cv::Mat Leye;//×óÑÛ
 	cv::Mat Reye;//ÓÒÑÛ
