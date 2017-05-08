@@ -39,11 +39,9 @@ EyePupilLocalization::EyePupilLocalization(QWidget *parent)
 	ui.customPlot_print->xAxis->setLabel("TIME");//设置横坐标
 	ui.customPlot_print->yAxis->setRange(-50, 50);//设置纵坐标范围
 }
-
 EyePupilLocalization::~EyePupilLocalization()
 {
 }
-
 //打开视频
 void EyePupilLocalization::on_pushButton_openvideo_clicked()
 {
@@ -59,7 +57,6 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 		QMessageBox::warning(this, "Warn", "No video selected");
 		return;
 	}
-	//double rate = capture.get(CV_CAP_PROP_FPS);
 	double numFrames = capture.get(CV_CAP_PROP_FRAME_COUNT);
 	QVector<double> TimeR, TimeL, Rx, Ry, Lx, Ly;
 	OldFrameNum = numFrames;
@@ -71,11 +68,7 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 	OldLeyeY.clear();
 	bool stop(false);
 	cv::Mat frame;
-	cv::Mat EyeShow = cv::imread("C:\\Users\\LZH\\Documents\\Visual Studio 2015\\Projects\\EyePupilLocalization\\EyePupilLocalization\\Resources\\eye.png", -1);
-	cv::resize(EyeShow, EyeShow, cv::Size(120, 60), 0, 0);//设置大小
-	cv::namedWindow("Project");
-	cv::imshow("Project", EyeShow);
-	//cv::destroyAllWindows();
+	cv::namedWindow("Video");//新建原始视频窗口
 	ui.customPlot_x->xAxis->setRange(0, numFrames);//设置横坐标
 	ui.customPlot_y->xAxis->setRange(0, numFrames);//设置横坐标
 
@@ -86,25 +79,22 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 	CvPoint LeyeCenter;//左眼中心
 	while (!stop)
 	{
-		if (!capture.read(frame))
+		if (!capture.read(frame))//读取视频每帧
 		{
-			break;
+			break;//当没有帧数读取时就退出循环
 		}
+		cv::imshow("Video", frame);//显示原始视频
 		++FrameNum;
-		if (FrameNum == numFrames)
-		{
-			stop = true;
-		}
-		ImgProcess pro(frame,1.7);
+		ImgProcess pro(frame,1.7);//进行类操作
 		pro.Process();
 
-		Leye = pro.OutLeye();
-		Reye = pro.OutReye();
+		Leye = pro.OutLeye();//输出左眼
+		Reye = pro.OutReye();//输出右眼
 
-		Limg = Mat2QImage(Leye);
-		Rimg = Mat2QImage(Reye);
-		ui.label_Leye->setPixmap(QPixmap::fromImage(Limg));//显示出来
-		ui.label_Reye->setPixmap(QPixmap::fromImage(Rimg));
+		Limg = Mat2QImage(Leye);//将左眼MAT类型装为IMAGE类型
+		Rimg = Mat2QImage(Reye);//将右眼MAT类型装为IMAGE类型
+		ui.label_Leye->setPixmap(QPixmap::fromImage(Limg));//在程序界面将左眼眼显示出来
+		ui.label_Reye->setPixmap(QPixmap::fromImage(Rimg));//在程序界面将右眼显示出来
 
 		//插入坐标
 		for (cv::Vec3f box : pro.circles)
@@ -166,19 +156,18 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 				OldFrameR.push_back(FrameNum);
 			}
 		}
-		ui.customPlot_x->replot();
-		ui.customPlot_y->replot();
+		ui.customPlot_x->replot();//重绘x坐标波形图
+		ui.customPlot_y->replot();//重绘y坐标波形图
 		cv::waitKey(1);
 	}
-	cv::destroyWindow("Project");
+	cv::destroyWindow("Video");//销毁窗口
 }
-
 //打开摄像头
 void EyePupilLocalization::on_pushButton_opencamera_clicked()
 {
-	cv::VideoCapture vcap;
-	QMessageBox::StandardButton rb = QMessageBox::question(NULL, "Choose", "Do you want to open PC camera?", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-	if (rb == QMessageBox::Yes)
+	cv::VideoCapture vcap;//定义摄像头打开对象
+	QMessageBox::StandardButton rb = QMessageBox::question(NULL, "Choose", "Do you want to open PC camera?", QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);//提示选择打开哪一个摄像头
+	if (rb == QMessageBox::Yes)//打开本机PC上的摄像头
 	{
 		if (!vcap.open(0))
 		{
@@ -186,13 +175,17 @@ void EyePupilLocalization::on_pushButton_opencamera_clicked()
 			return;
 		}
 	}
-	else
+	else if (rb == QMessageBox::No)//打开网络摄像头
 	{
 		if (!vcap.open(videoStreamAddress))
 		{
 			QMessageBox::warning(this, "Warn", "No Camera");
 			return;
 		}
+	}
+	else//取消打开
+	{
+		return;
 	}
 	cv::namedWindow("Camera Video");
 	bool stop(false);
@@ -203,46 +196,50 @@ void EyePupilLocalization::on_pushButton_opencamera_clicked()
 		{
 			break;
 		}
-		cv::imshow("Camera Video", frame);
-		if (cv::waitKey(5) == 27)
+		cv::imshow("Camera Video", frame);//显示摄像头内容
+		if (cv::waitKey(5) == 27)//ESC的ASCII码为27
 		{
-			break;//按下ESE退出
+			break;//按下ESC退出
 		}
 	}
-	cv::destroyWindow("Camera Video");
+	cv::destroyWindow("Camera Video");//销毁窗口
 }
-
 //打印
 void EyePupilLocalization::on_pushButton_print_clicked()
 {
 	if (OldFrameNum == 0)
 	{
-		QMessageBox::information(this, "Warn", "No Waveforms");
+		QMessageBox::warning(this, "Warn", "No Waveforms");
 		return;
 	}
-	//QPrinter printer(QPrinter::HighResolution);
-	//printer.setPageSize(QPrinter::A4);
-	//printer.setPaperSize(QSizeF(ui.customPlot_print->height() * 3, ui.customPlot_print->width()), QPrinter::Point);
+	QPrinter printer;//新建打印机对象
+	printer.setPageSize(QPrinter::A4);//设置打印为A4纸张
 
-	QPainter painter(&printer);
+	QPainter painter(&printer);//在打印纸张上绘图
 	QRect rect = painter.viewport();
-	QSize size = ui.customPlot_print->size();
-	size.scale(rect.size(), Qt::KeepAspectRatio);
-	painter.setViewport(rect.x(), rect.y(), size.width(), size.width());//故意最后一个参数弄成width
-	plotWight(true);
-	ui.customPlot_print->render(&painter);
-	painter.setViewport(rect.x(), rect.y() + size.height(), size.width(), rect.y() + size.width());
-	plotWight(false);
-	ui.customPlot_print->render(&painter);
+	QRect rectText1(0, 0, 700, 50);
+	QRect rectText2(0, 350, 700, 50);
+	painter.drawText(rectText1, Qt::AlignCenter, tr("LEVEL"));
+	painter.drawText(rectText2, Qt::AlignCenter, tr("VERTICAL"));
+	QSize size = ui.customPlot_print->size();//获取plotwight控件的大小
+	painter.setViewport(rect.x(), rect.y() + 50, size.width(), size.height());//设置水平波形图轨迹方位
+	plotWight(true);//绘制水平波形图
+	ui.customPlot_print->render(&painter);//将水平波形图转到painter中去
+	painter.setViewport(rect.x(), rect.y() + size.height(), size.width(), rect.y() + size.height());//设置竖直波形图轨迹方位
+	plotWight(false);//绘制竖直波形图
+	ui.customPlot_print->render(&painter);//将竖直波形图转到painter中去
 	painter.end();
+
+	/*****打印预览，未完待续*****/
 	//QPrintPreviewDialog preview(&printer, this);//打印预览
 	//QPrintDialog printdlg(&printer, this);//打印预览
 	//preview.showNormal();
 	//preview.setWindowTitle(tr("Print Waveform"));
 	//connect(&preview, SIGNAL(paintRequested(QPrinter*)), this, SLOT(printView(QPrinter*)));
 	//preview.exec();
+	/**********/
 }
-
+//绘制波形
 void EyePupilLocalization::plotWight(bool IsLevel)
 {
 	ui.customPlot_print->addGraph();//增加第一条曲线
@@ -266,5 +263,3 @@ void EyePupilLocalization::plotWight(bool IsLevel)
 	}
 	ui.customPlot_print->replot();
 }
-
-
