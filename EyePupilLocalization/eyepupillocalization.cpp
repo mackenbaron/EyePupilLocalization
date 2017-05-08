@@ -218,7 +218,7 @@ void EyePupilLocalization::on_pushButton_print_clicked()
 	QPainter painter(&printer);//在打印纸张上绘图
 	QRect rect = painter.viewport();
 	QRect rectText1(0, 0, 700, 50);
-	QRect rectText2(0, 350, 700, 50);
+	QRect rectText2(0, 450, 700, 50);
 	painter.drawText(rectText1, Qt::AlignCenter, tr("LEVEL"));
 	painter.drawText(rectText2, Qt::AlignCenter, tr("VERTICAL"));
 	QSize size = ui.customPlot_print->size();//获取plotwight控件的大小
