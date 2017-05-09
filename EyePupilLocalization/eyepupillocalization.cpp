@@ -10,7 +10,7 @@ EyePupilLocalization::EyePupilLocalization(QWidget *parent)
 		QCP::iSelectLegend | QCP::iSelectPlottables);//创建曲线范围
 	ui.customPlot_x->xAxis->setLabel("TIME");//设置横坐标
 	ui.customPlot_x->yAxis->setLabel("LEVEL");//设置纵坐标
-	ui.customPlot_x->yAxis->setRange(-50, 50);//设置纵坐标范围
+	ui.customPlot_x->yAxis->setRange(-70, 70);//设置纵坐标范围
 	ui.customPlot_x->addGraph();//增加第一条曲线
 	ui.customPlot_x->graph(0)->setPen(QPen(Qt::red));//设置为红色
 	ui.customPlot_x->addGraph();//在增加一条曲线
@@ -20,7 +20,7 @@ EyePupilLocalization::EyePupilLocalization(QWidget *parent)
 		QCP::iSelectLegend | QCP::iSelectPlottables);
 	ui.customPlot_y->xAxis->setLabel("TIME");
 	ui.customPlot_y->yAxis->setLabel("VERTICAL");
-	ui.customPlot_y->yAxis->setRange(-50, 50);//设置纵坐标
+	ui.customPlot_y->yAxis->setRange(-70, 70);//设置纵坐标
 	ui.customPlot_y->addGraph();
 	ui.customPlot_y->graph(0)->setPen(QPen(Qt::red));
 	ui.customPlot_y->addGraph();
@@ -69,8 +69,11 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 	bool stop(false);
 	cv::Mat frame;
 	cv::namedWindow("Video");//新建原始视频窗口
+	
 	ui.customPlot_x->xAxis->setRange(0, numFrames);//设置横坐标
 	ui.customPlot_y->xAxis->setRange(0, numFrames);//设置横坐标
+
+	cv::Mat temp = cv::imread("C:\\Users\\LZH\\Desktop\\1.png", -1);
 
 	bool IsReyeCenter(false);//是否右眼出来第一个定位坐标
 	bool IsLeyeCenter(false);//是否左眼出来第一个定位坐标
@@ -186,9 +189,23 @@ void EyePupilLocalization::on_pushButton_opencamera_clicked()
 	{
 		return;
 	}
-	cv::namedWindow("Camera Video");
+	QVector<double> TimeR, TimeL, Rx, Ry, Lx, Ly;
+	OldFrameNum = 0;
+	OldFrameR.clear();
+	OldFrameL.clear();
+	OldReyeX.clear();
+	OldReyeY.clear();
+	OldLeyeX.clear();
+	OldLeyeY.clear();
 	bool stop(false);
+	cv::namedWindow("Camera Video");
 	cv::Mat frame;
+
+	bool IsReyeCenter(false);//是否右眼出来第一个定位坐标
+	bool IsLeyeCenter(false);//是否左眼出来第一个定位坐标
+	int FrameNum = 0;//视频处理帧的次数
+	CvPoint ReyeCenter;//右眼中心
+	CvPoint LeyeCenter;//左眼中心
 	while (!stop)
 	{
 		if (!vcap.read(frame))
@@ -196,7 +213,81 @@ void EyePupilLocalization::on_pushButton_opencamera_clicked()
 			break;
 		}
 		cv::imshow("Camera Video", frame);//显示摄像头内容
-		if (cv::waitKey(5) == 27)//ESC的ASCII码为27
+
+		++FrameNum;
+		++OldFrameNum;
+		ImgProcess pro(frame, frame, 1.7);
+		pro.ProcessSignal();
+
+		Leye = pro.OutLeye();//输出左眼
+		Reye = pro.OutReye();//输出右眼
+
+		Limg = Mat2QImage(Leye);//将左眼MAT类型装为IMAGE类型
+		Rimg = Mat2QImage(Reye);//将右眼MAT类型装为IMAGE类型
+		ui.label_Leye->setPixmap(QPixmap::fromImage(Limg));//在程序界面将左眼眼显示出来
+		ui.label_Reye->setPixmap(QPixmap::fromImage(Rimg));//在程序界面将右眼显示出来
+		for (cv::Vec3f box : pro.Lcircles)
+		{
+			//左眼
+			ui.lcdNumber_Lx->display(floor(box[0]));
+			ui.lcdNumber_Ly->display(floor(box[1]));
+			ui.lcdNumber_Lr->display(floor(box[2]));
+			if (!IsLeyeCenter)
+			{
+				LeyeCenter.x = box[0];
+				LeyeCenter.y = box[1];
+				IsLeyeCenter = true;
+				Lx.push_back(0);
+				Ly.push_back(0);
+				TimeL.push_back(FrameNum);
+				ui.customPlot_x->graph(0)->setData(TimeL, Lx);
+				ui.customPlot_y->graph(0)->setData(TimeL, Ly);
+				OldLeyeX.push_back(0);
+				OldLeyeY.push_back(0);
+			}
+			else
+			{
+				ui.customPlot_x->graph(0)->addData(FrameNum, box[0] - LeyeCenter.x);
+				ui.customPlot_y->graph(0)->addData(FrameNum, box[1] - LeyeCenter.y);
+				
+				OldLeyeX.push_back(box[0] - LeyeCenter.x);
+				OldLeyeY.push_back(box[1] - LeyeCenter.y);
+			}
+			OldFrameL.push_back(FrameNum);
+		}
+		for (cv::Vec3f box : pro.Rcircles)
+		{
+			//右眼
+			ui.lcdNumber_Rx->display(floor(box[0]));
+			ui.lcdNumber_Ry->display(floor(box[1]));
+			ui.lcdNumber_Rr->display(floor(box[2]));
+			if (!IsReyeCenter)
+			{
+				ReyeCenter.x = box[0];
+				ReyeCenter.y = box[1];
+				IsReyeCenter = true;
+				Rx.push_back(0);
+				Ry.push_back(0);
+				TimeR.push_back(FrameNum);
+				ui.customPlot_x->graph(1)->setData(TimeR, Rx);
+				ui.customPlot_y->graph(1)->setData(TimeR, Ry);
+				OldReyeX.push_back(0);
+				OldReyeY.push_back(0);
+			}
+			else
+			{
+				ui.customPlot_x->graph(1)->addData(FrameNum, box[0] - ReyeCenter.x);
+				ui.customPlot_y->graph(1)->addData(FrameNum, box[1] - ReyeCenter.y);
+				OldReyeX.push_back(box[0] - ReyeCenter.x);
+				OldReyeY.push_back(box[1] - ReyeCenter.y);
+			}
+			OldFrameR.push_back(FrameNum);
+		}
+		ui.customPlot_x->rescaleAxes();//自动调整坐标
+		ui.customPlot_y->rescaleAxes();//自动调整坐标
+		ui.customPlot_x->replot();//重绘x坐标波形图
+		ui.customPlot_y->replot();//重绘y坐标波形图
+		if (cv::waitKey(1) == 27)//ESC的ASCII码为27
 		{
 			break;//按下ESC退出
 		}
