@@ -87,6 +87,8 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 		++FrameNum;
 		ImgProcess pro(frame,1.7);//进行类操作
 		pro.Process();
+		//ImgProcess pro(frame, frame, 1.7);
+		//pro.ProcessSignal();
 
 		Leye = pro.OutLeye();//输出左眼
 		Reye = pro.OutReye();//输出右眼
@@ -97,64 +99,61 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 		ui.label_Reye->setPixmap(QPixmap::fromImage(Rimg));//在程序界面将右眼显示出来
 
 		//插入坐标
-		for (cv::Vec3f box : pro.circles)
+		for (cv::Vec3f box : pro.Lcircles)
 		{
-			if (box[0] < frame.cols / 2)//X坐标小于一半位置为左眼
+			//左眼
+			ui.lcdNumber_Lx->display(floor(box[0]));
+			ui.lcdNumber_Ly->display(floor(box[1]));
+			ui.lcdNumber_Lr->display(floor(box[2]));
+			if (!IsLeyeCenter)
 			{
-				//左眼
-				ui.lcdNumber_Lx->display(floor(box[0]));
-				ui.lcdNumber_Ly->display(floor(box[1]));
-				ui.lcdNumber_Lr->display(floor(box[2]));
-				if (!IsLeyeCenter)
-				{
-					LeyeCenter.x = box[0];
-					LeyeCenter.y = box[1];
-					IsLeyeCenter = true;
-					Lx.push_back(0);
-					Ly.push_back(0);
-					TimeL.push_back(FrameNum);
-					ui.customPlot_x->graph(0)->setData(TimeL, Lx);
-					ui.customPlot_y->graph(0)->setData(TimeL, Ly);
-					OldLeyeX.push_back(0);
-					OldLeyeY.push_back(0);
-				}
-				else
-				{
-					ui.customPlot_x->graph(0)->addData(FrameNum, box[0] - LeyeCenter.x);
-					ui.customPlot_y->graph(0)->addData(FrameNum, box[1] - LeyeCenter.y);
-					OldLeyeX.push_back(box[0] - LeyeCenter.x);
-					OldLeyeY.push_back(box[1] - LeyeCenter.y);
-				}
-				OldFrameL.push_back(FrameNum);
+				LeyeCenter.x = box[0];
+				LeyeCenter.y = box[1];
+				IsLeyeCenter = true;
+				Lx.push_back(0);
+				Ly.push_back(0);
+				TimeL.push_back(FrameNum);
+				ui.customPlot_x->graph(0)->setData(TimeL, Lx);
+				ui.customPlot_y->graph(0)->setData(TimeL, Ly);
+				OldLeyeX.push_back(0);
+				OldLeyeY.push_back(0);
 			}
 			else
 			{
-				//右眼
-				ui.lcdNumber_Rx->display(floor(box[0]));
-				ui.lcdNumber_Ry->display(floor(box[1]));
-				ui.lcdNumber_Rr->display(floor(box[2]));
-				if (!IsReyeCenter)
-				{
-					ReyeCenter.x = box[0];
-					ReyeCenter.y = box[1];
-					IsReyeCenter = true;
-					Rx.push_back(0);
-					Ry.push_back(0);
-					TimeR.push_back(FrameNum);
-					ui.customPlot_x->graph(1)->setData(TimeR, Rx);
-					ui.customPlot_y->graph(1)->setData(TimeR, Ry);
-					OldReyeX.push_back(0);
-					OldReyeY.push_back(0);
-				}
-				else
-				{
-					ui.customPlot_x->graph(1)->addData(FrameNum, box[0] - ReyeCenter.x);
-					ui.customPlot_y->graph(1)->addData(FrameNum, box[1] - ReyeCenter.y);
-					OldReyeX.push_back(box[0] - ReyeCenter.x);
-					OldReyeY.push_back(box[1] - ReyeCenter.y);
-				}
-				OldFrameR.push_back(FrameNum);
+				ui.customPlot_x->graph(0)->addData(FrameNum, box[0] - LeyeCenter.x);
+				ui.customPlot_y->graph(0)->addData(FrameNum, box[1] - LeyeCenter.y);
+				OldLeyeX.push_back(box[0] - LeyeCenter.x);
+				OldLeyeY.push_back(box[1] - LeyeCenter.y);
 			}
+			OldFrameL.push_back(FrameNum);
+		}
+		for (cv::Vec3f box : pro.Rcircles)
+		{
+			//右眼
+			ui.lcdNumber_Rx->display(floor(box[0]));
+			ui.lcdNumber_Ry->display(floor(box[1]));
+			ui.lcdNumber_Rr->display(floor(box[2]));
+			if (!IsReyeCenter)
+			{
+				ReyeCenter.x = box[0];
+				ReyeCenter.y = box[1];
+				IsReyeCenter = true;
+				Rx.push_back(0);
+				Ry.push_back(0);
+				TimeR.push_back(FrameNum);
+				ui.customPlot_x->graph(1)->setData(TimeR, Rx);
+				ui.customPlot_y->graph(1)->setData(TimeR, Ry);
+				OldReyeX.push_back(0);
+				OldReyeY.push_back(0);
+			}
+			else
+			{
+				ui.customPlot_x->graph(1)->addData(FrameNum, box[0] - ReyeCenter.x);
+				ui.customPlot_y->graph(1)->addData(FrameNum, box[1] - ReyeCenter.y);
+				OldReyeX.push_back(box[0] - ReyeCenter.x);
+				OldReyeY.push_back(box[1] - ReyeCenter.y);
+			}
+			OldFrameR.push_back(FrameNum);
 		}
 		ui.customPlot_x->replot();//重绘x坐标波形图
 		ui.customPlot_y->replot();//重绘y坐标波形图

@@ -31,6 +31,7 @@ private:
 	int RmaxAreaIndex = 0;//右眼最大轮廓下标
 	cv::Rect Rrect;//左眼轮廓边界
 	cv::Rect Lrect;//右眼轮廓边界
+	std::vector<cv::Vec3f> circles;//整体检测的瞳孔圆
 
 	void DivideEye(const cv::Mat divideimg);//分左右眼  
 	cv::Mat GrayDetect(cv::Mat grayimg);//灰度处理
@@ -40,11 +41,16 @@ private:
 	cv::Mat PlotC(std::vector<cv::Vec3f> circles, cv::Mat &midImage);//画出检测圆
 	void RemoveSmallRegion(cv::Mat& Src, cv::Mat& Dst, int AreaLimit, int CheckMode, int NeihborMode);//去除小面积
 	Box circleLeastFit(const std::vector<cv::Point> points);//拟合圆检测
+	void contrastStretch(cv::Mat & image);
+
 public:
-	std::vector<cv::Vec3f> circles;//整体检测的瞳孔圆
+	std::vector<cv::Vec3f> Lcircles;//整体检测的左眼瞳孔圆
+	std::vector<cv::Vec3f> Rcircles;//整体检测的右眼瞳孔圆
 
 	ImgProcess(cv::Mat image, double ratio = 1.3) :inimg(image), EyeRatio(ratio) {}//构造函数
+	ImgProcess(cv::Mat leye, cv::Mat reye, double ratio = 1.3) :Leye(leye), Reye(reye), EyeRatio(ratio) {}
 	void Process();
+	void ProcessSignal();
 	cv::Mat Outputimg();//输出结果  
 	cv::Mat OutLeye();//输出左眼  
 	cv::Mat OutReye();//输出右眼

@@ -73,6 +73,7 @@ void ImgProcess::Process()
 				Lpoint[0] = Lbox.x;
 				Lpoint[1] = Lbox.y;
 				Lpoint[2] = Lbox.r;
+				Lcircles.push_back(Lpoint);
 				circles.push_back(Lpoint);
 			}
 		}
@@ -101,6 +102,7 @@ void ImgProcess::Process()
 				Rpoint[0] = Rbox.x + inimg.cols / 2;
 				Rpoint[1] = Rbox.y;
 				Rpoint[2] = Rbox.r;
+				Rcircles.push_back(Rpoint);
 				circles.push_back(Rpoint);
 			}
 		}
@@ -126,7 +128,92 @@ void ImgProcess::Process()
 	}
 }
 
-//灰度处理z
+void ImgProcess::ProcessSignal()
+{
+	cv::Mat Lgrayimg, Rgrayimg;
+	double temparea;
+	Lgrayimg = GrayDetect(Leye);//得到灰度图,此时inimg没有被修改
+	Rgrayimg = GrayDetect(Reye);
+	EdgeDetect(Lgrayimg);//边缘检测
+	EdgeDetect(Rgrayimg);//边缘检测
+	cv::findContours(Lgrayimg, Lcontours, Lhierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_NONE);//寻找左眼轮廓
+	cv::findContours(Rgrayimg, Rcontours, Rhierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_NONE);//寻找右眼轮廓
+	if (Lcontours.size() > 0)//左眼有轮廓
+	{
+		for (int i = 0; i < Lcontours.size(); ++i)
+		{
+			temparea = fabs(cv::contourArea(Lcontours[i]));
+			if (temparea > Lmaxarea)
+			{
+				Lmaxarea = temparea;//左眼最大轮廓面积
+				LmaxAreaIndex = i;//左眼最大轮廓下标
+				continue;
+			}
+		}
+		//闭眼检测
+		Lrect = cv::boundingRect(Lcontours[LmaxAreaIndex]);
+		if ((Lrect.width / (float)Lrect.height) < EyeRatio && (Lrect.height / (float)Lrect.width) < EyeRatio && Lrect.width > 0 && Lrect.height > 0)//左眼闭眼检测
+		{
+			Box Lbox = circleLeastFit(Lcontours[LmaxAreaIndex]);
+			if (Lbox.r != 0)
+			{
+				//如果返回不为0
+				cv::Vec3f Lpoint;//左眼圆心
+				Lpoint[0] = Lbox.x;
+				Lpoint[1] = Lbox.y;
+				Lpoint[2] = Lbox.r;
+				Lcircles.push_back(Lpoint);
+			}
+		}
+	}
+	if (Rcontours.size() > 0)//右眼有轮廓
+	{
+		for (int i = 0; i < Rcontours.size(); ++i)
+		{
+			temparea = fabs(cv::contourArea(Rcontours[i]));
+			if (temparea > Rmaxarea)
+			{
+				Rmaxarea = temparea;
+				RmaxAreaIndex = i;
+				continue;
+			}
+		}
+		//闭眼检测
+		Rrect = cv::boundingRect(Rcontours[RmaxAreaIndex]);
+		if ((Rrect.width / (float)Rrect.height) < EyeRatio && (Rrect.height / (float)Rrect.width) < EyeRatio && Rrect.width > 0 && Rrect.height > 0)//右眼闭眼检测
+		{
+			Box Rbox = circleLeastFit(Rcontours[RmaxAreaIndex]);
+			if (Rbox.r != 0)
+			{
+				//如果返回不是0
+				cv::Vec3f Rpoint;//右眼圆心
+				Rpoint[0] = Rbox.x + inimg.cols / 2;
+				Rpoint[1] = Rbox.y;
+				Rpoint[2] = Rbox.r;
+				Rcircles.push_back(Rpoint);
+			}
+		}
+	}
+
+	if (Lcircles.size() > 0)
+	{
+		Leye = PlotC(Lcircles, Leye);
+	}
+	if (Rcircles.size() > 0)
+	{
+		Reye = PlotC(Rcircles, Reye);
+	}
+	if (Lcontours.size() > 0)
+	{
+		cv::drawContours(Leye, Lcontours, LmaxAreaIndex, cv::Scalar(0, 0, 255), 1);//左眼轮廓显示
+	}
+	if (Rcontours.size() > 0)
+	{
+		cv::drawContours(Reye, Rcontours, RmaxAreaIndex, cv::Scalar(0, 0, 255), 1);//右眼轮廓显示
+	}
+}
+
+//灰度处理
 cv::Mat ImgProcess::GrayDetect(cv::Mat grayimg)
 {
 	cv::Mat grayout;
@@ -202,6 +289,47 @@ Box ImgProcess::circleLeastFit(const std::vector<cv::Point> points)
 	box.r = sqrt(a*a + b*b - 4 * c) / 2;
 
 	return box;
+}
+
+//对比度拉伸
+void ImgProcess::contrastStretch(cv::Mat & image)
+{
+	int nRows = image.rows;
+	int ncols = image.cols;
+	//判断图像的连续性
+	if (image.isContinuous())
+	{
+		ncols = ncols*nRows;
+		nRows = 1;
+	}
+	//图像指针操作
+	uchar *pDataMat;
+	int pixMax = 0, pixMin = 255;
+	//寻找图像最大值和最小值
+	for (int j = 0; j < nRows; ++j)
+	{
+		pDataMat = image.ptr<uchar>(j);//ptr<>()得到的是一行指针
+		for (int i = 0; i < ncols; ++i)
+		{
+			if (pDataMat[i] > pixMax)
+			{
+				pixMax = pDataMat[i];
+			}
+			if (pDataMat[i] < pixMin)
+			{
+				pixMin = pDataMat[i];
+			}
+		}
+	}
+	//对比度拉伸映射
+	for (int j = 0; j < nRows; ++j)
+	{
+		pDataMat = image.ptr<uchar>(j);//ptr<>()得到的是一行指针
+		for (int i = 0; i < ncols; ++i)
+		{
+			pDataMat[i] = (pDataMat[i] - pixMin) * 255 / (pixMax - pixMin);
+		}
+	}
 }
 
 //边缘检测
