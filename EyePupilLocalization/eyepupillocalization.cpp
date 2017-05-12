@@ -38,6 +38,9 @@ EyePupilLocalization::EyePupilLocalization(QWidget *parent)
 		QCP::iSelectLegend | QCP::iSelectPlottables);//创建曲线范围
 	ui.customPlot_print->xAxis->setLabel("TIME");//设置横坐标
 	ui.customPlot_print->yAxis->setRange(-50, 50);//设置纵坐标范围
+
+	time = QDateTime::currentDateTime();//获取系统现在的时间
+	str_time=time.toString("yyyy-MM-dd hh:mm:ss ddd"); //设置显示格式
 }
 EyePupilLocalization::~EyePupilLocalization()
 {
@@ -57,6 +60,8 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 		QMessageBox::warning(this, "Warn", "No video selected");
 		return;
 	}
+	time = QDateTime::currentDateTime();//获取系统现在的时间
+	str_time = time.toString("yyyy-MM-dd hh:mm:ss ddd"); //设置显示格式
 	double numFrames = capture.get(CV_CAP_PROP_FRAME_COUNT);
 	QVector<double> TimeR, TimeL, Rx, Ry, Lx, Ly;
 	OldFrameNum = numFrames;
@@ -73,7 +78,7 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 	ui.customPlot_x->xAxis->setRange(0, numFrames);//设置横坐标
 	ui.customPlot_y->xAxis->setRange(0, numFrames);//设置横坐标
 
-	cv::Mat temp = cv::imread("C:\\Users\\LZH\\Desktop\\1.png", -1);
+	//cv::Mat temp = cv::imread("C:\\Users\\LZH\\Desktop\\1.png", -1);
 
 	bool IsReyeCenter(false);//是否右眼出来第一个定位坐标
 	bool IsLeyeCenter(false);//是否左眼出来第一个定位坐标
@@ -88,10 +93,10 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 		}
 		cv::imshow("Video", frame);//显示原始视频
 		++FrameNum;
-		ImgProcess pro(frame,1.7);//进行类操作
-		pro.Process();
-		//ImgProcess pro(frame, frame, 1.7);
-		//pro.ProcessSignal();
+		//ImgProcess pro(frame,1.7);//进行类操作
+		//pro.Process();
+		ImgProcess pro(frame, frame, 1.7);
+		pro.ProcessSignal();
 
 		Leye = pro.OutLeye();//输出左眼
 		Reye = pro.OutReye();//输出右眼
@@ -189,6 +194,8 @@ void EyePupilLocalization::on_pushButton_opencamera_clicked()
 	{
 		return;
 	}
+	time = QDateTime::currentDateTime();//获取系统现在的时间
+	str_time = time.toString("yyyy-MM-dd hh:mm:ss ddd"); //设置显示格式
 	QVector<double> TimeR, TimeL, Rx, Ry, Lx, Ly;
 	OldFrameNum = 0;
 	OldFrameR.clear();
@@ -304,30 +311,37 @@ void EyePupilLocalization::on_pushButton_print_clicked()
 	}
 	QPrinter printer;//新建打印机对象
 	printer.setPageSize(QPrinter::A4);//设置打印为A4纸张
-
-	QPainter painter(&printer);//在打印纸张上绘图
-	QRect rect = painter.viewport();
-	QRect rectText1(0, 0, 700, 50);
-	QRect rectText2(0, 450, 700, 50);
-	painter.drawText(rectText1, Qt::AlignCenter, tr("LEVEL"));
-	painter.drawText(rectText2, Qt::AlignCenter, tr("VERTICAL"));
-	QSize size = ui.customPlot_print->size();//获取plotwight控件的大小
-	painter.setViewport(rect.x(), rect.y() + 50, size.width(), size.height());//设置水平波形图轨迹方位
-	plotWight(true);//绘制水平波形图
-	ui.customPlot_print->render(&painter);//将水平波形图转到painter中去
-	painter.setViewport(rect.x(), rect.y() + size.height(), size.width(), rect.y() + size.height());//设置竖直波形图轨迹方位
-	plotWight(false);//绘制竖直波形图
-	ui.customPlot_print->render(&painter);//将竖直波形图转到painter中去
-	painter.end();
-
-	/*****打印预览，未完待续*****/
-	//QPrintPreviewDialog preview(&printer, this);//打印预览
-	//QPrintDialog printdlg(&printer, this);//打印预览
-	//preview.showNormal();
-	//preview.setWindowTitle(tr("Print Waveform"));
-	//connect(&preview, SIGNAL(paintRequested(QPrinter*)), this, SLOT(printView(QPrinter*)));
-	//preview.exec();
-	/**********/
+	QPrintPreviewDialog preview(&printer, this);
+	connect(&preview, SIGNAL(paintRequested(QPrinter*)), SLOT(printPreviewSlot(QPrinter*)));
+	preview.exec();
+}
+//打印预览
+void EyePupilLocalization::printPreviewSlot(QPrinter * printerPixmap)
+{
+	//文字备注位置
+	QRect rect_level(0, 20, 800, 30);
+	QRect rect_vertical(0, 520, 800, 30);
+	//时间备注位置
+	QRect rect_time(0, 1020, 700, 30);
+	//获取界面照片
+	plotWight(true);
+	QPixmap pixmap_level = QPixmap::grabWidget(ui.customPlot_print, ui.customPlot_print->rect());//绘制水平波形图
+	plotWight(false);
+	QPixmap pixmap_vertical = QPixmap::grabWidget(ui.customPlot_print, ui.customPlot_print->rect());//绘制竖直波形图
+	QPainter painterPixmap(this);
+	painterPixmap.begin(printerPixmap);
+	//绘制文字
+	QFont font_lable("Arial", 20, QFont::Bold, false);//设置标签字体的类型，大小，加粗，非斜体
+	QFont font_time("Arial", 15, QFont::Bold, false);//设置时间字体的类型，大小，加粗，非斜体
+	painterPixmap.setFont(font_lable);
+	painterPixmap.drawText(rect_level, Qt::AlignHCenter, tr("LEVEL"));
+	painterPixmap.drawText(rect_vertical, Qt::AlignHCenter, tr("VERTICAL"));
+	painterPixmap.setFont(font_time);
+	painterPixmap.drawText(rect_time, Qt::AlignRight, str_time);
+	//绘制波形
+	painterPixmap.drawPixmap(30, 50, pixmap_level);
+	painterPixmap.drawPixmap(30, 550, pixmap_vertical);
+	painterPixmap.end();
 }
 //绘制波形
 void EyePupilLocalization::plotWight(bool IsLevel)

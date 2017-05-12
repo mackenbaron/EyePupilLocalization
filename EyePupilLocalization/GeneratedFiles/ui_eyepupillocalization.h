@@ -194,7 +194,7 @@ public:
         customPlot_print = new QCustomPlot(customPlot_x);
         customPlot_print->setObjectName(QStringLiteral("customPlot_print"));
         customPlot_print->setEnabled(true);
-        customPlot_print->setGeometry(QRect(140, 20, 750, 500));
+        customPlot_print->setGeometry(QRect(120, 30, 700, 400));
         customPlot_y = new QCustomPlot(centralWidget);
         customPlot_y->setObjectName(QStringLiteral("customPlot_y"));
         customPlot_y->setGeometry(QRect(20, 510, 481, 141));

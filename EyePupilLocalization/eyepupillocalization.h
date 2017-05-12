@@ -19,6 +19,7 @@ public slots:
 	void on_pushButton_openvideo_clicked();//打开本地视频
 	void on_pushButton_opencamera_clicked();//打开摄像头
 	void on_pushButton_print_clicked();//打印
+	void printPreviewSlot(QPrinter *printerPixmap);//打印预览
 private:
 	Ui::EyePupilLocalizationClass ui;
 	std::string videoStreamAddress = "http://192.168.1.233:8080/?action=stream?dummy=param.mjpg";//红外摄像头网络地址
@@ -38,8 +39,10 @@ private:
 	QVector<double> OldReyeY;//本次右眼波形Y坐标
 	QVector<double> OldLeyeX;//本次左眼波形X坐标
 	QVector<double> OldLeyeY;//本次左眼波形Y坐标
+	QDateTime time;//测试时间
+	QString str_time;//测试时间字符串标准格式
 
 	void plotWight(bool IsLevel);//绘制波形
 };
 
-#endif // EYEPUPILLOCALIZATION_H
+#endif 
