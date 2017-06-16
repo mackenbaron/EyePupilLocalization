@@ -28,8 +28,6 @@ private:
 	cv::Mat Reye;//右眼Mat类型
 	QImage Limg;//左眼Image类型
 	QImage Rimg;//右眼Image类型
-	QLabel *label_name;//状态栏作者信息备注
-	QLabel *label_time;//状态栏时间信息备注
 
 	//保存上次信息
 	int OldFrameNum = 0;//本次波形帧数
@@ -39,8 +37,9 @@ private:
 	QVector<double> OldReyeY;//本次右眼波形Y坐标
 	QVector<double> OldLeyeX;//本次左眼波形X坐标
 	QVector<double> OldLeyeY;//本次左眼波形Y坐标
-	QDateTime time;//测试时间
-	QString str_time;//测试时间字符串标准格式
+	QDateTime TESTtime;//测试时间
+	QString str_TESTtime;//测试时间字符串标准格式
+
 
 	void plotWight(bool IsLevel);//绘制波形
 };

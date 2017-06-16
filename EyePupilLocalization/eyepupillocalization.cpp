@@ -24,14 +24,7 @@ EyePupilLocalization::EyePupilLocalization(QWidget *parent)
 	ui.customPlot_y->addGraph();
 	ui.customPlot_y->graph(0)->setPen(QPen(Qt::red));
 	ui.customPlot_y->addGraph();
-	ui.customPlot_y->graph(1)->setPen(QPen(Qt::blue));
-
-	label_name = new QLabel;
-	label_name->setText("    DESIGNED BY HJY     ");
-	ui.statusBar->addWidget(label_name);
-	label_time = new QLabel;
-	label_time->setText("     May , 2017  ");
-	ui.statusBar->addWidget(label_time);
+	ui.customPlot_y->graph(1)->setPen(QPen(Qt::blue));	
 
 	ui.customPlot_print->hide();
 	ui.customPlot_print->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |
@@ -39,8 +32,10 @@ EyePupilLocalization::EyePupilLocalization(QWidget *parent)
 	ui.customPlot_print->xAxis->setLabel("TIME");//设置横坐标
 	ui.customPlot_print->yAxis->setRange(-50, 50);//设置纵坐标范围
 
-	time = QDateTime::currentDateTime();//获取系统现在的时间
-	str_time=time.toString("yyyy-MM-dd hh:mm:ss ddd"); //设置显示格式
+	TESTtime = QDateTime::currentDateTime();//获取系统现在的时间
+	str_TESTtime= TESTtime.toString("yyyy-MM-dd hh:mm:ss ddd"); //设置显示格式
+
+	ui.statusBar->showMessage(tr("Ready"));
 }
 EyePupilLocalization::~EyePupilLocalization()
 {
@@ -48,6 +43,7 @@ EyePupilLocalization::~EyePupilLocalization()
 //打开视频
 void EyePupilLocalization::on_pushButton_openvideo_clicked()
 {
+	ui.statusBar->showMessage(QString::fromLocal8Bit("正在打开本地摄像头"));
 	fileName = QFileDialog::getOpenFileName(
 		this,
 		"Open Video",
@@ -58,10 +54,12 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 	if (!capture.isOpened())
 	{
 		QMessageBox::warning(this, "Warn", "No video selected");
+		ui.statusBar->showMessage("");
 		return;
 	}
-	time = QDateTime::currentDateTime();//获取系统现在的时间
-	str_time = time.toString("yyyy-MM-dd hh:mm:ss ddd"); //设置显示格式
+	ui.statusBar->showMessage(QString::fromLocal8Bit("正在处理本地视频"));
+	TESTtime = QDateTime::currentDateTime();//获取系统现在的时间
+	str_TESTtime = TESTtime.toString("yyyy-MM-dd hh:mm:ss ddd"); //设置显示格式
 	double numFrames = capture.get(CV_CAP_PROP_FRAME_COUNT);
 	QVector<double> TimeR, TimeL, Rx, Ry, Lx, Ly;
 	OldFrameNum = numFrames;
@@ -168,10 +166,12 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 		cv::waitKey(1);
 	}
 	cv::destroyWindow("Video");//销毁窗口
+	ui.statusBar->showMessage(QString::fromLocal8Bit("视频处理结束"));
 }
 //打开摄像头
 void EyePupilLocalization::on_pushButton_opencamera_clicked()
 {
+	ui.statusBar->showMessage(QString::fromLocal8Bit("正在打开摄像头"));
 	cv::VideoCapture vcap;//定义摄像头打开对象
 	QMessageBox::StandardButton rb = QMessageBox::question(NULL, "Choose", "Do you want to open PC camera?", QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);//提示选择打开哪一个摄像头
 	if (rb == QMessageBox::Yes)//打开本机PC上的摄像头
@@ -179,6 +179,7 @@ void EyePupilLocalization::on_pushButton_opencamera_clicked()
 		if (!vcap.open(0))
 		{
 			QMessageBox::warning(this, "Warn", "No Camera");
+			ui.statusBar->showMessage("");
 			return;
 		}
 	}
@@ -187,15 +188,18 @@ void EyePupilLocalization::on_pushButton_opencamera_clicked()
 		if (!vcap.open(videoStreamAddress))
 		{
 			QMessageBox::warning(this, "Warn", "No Camera");
+			ui.statusBar->showMessage("");
 			return;
 		}
 	}
 	else//取消打开
 	{
+		ui.statusBar->showMessage("");
 		return;
 	}
-	time = QDateTime::currentDateTime();//获取系统现在的时间
-	str_time = time.toString("yyyy-MM-dd hh:mm:ss ddd"); //设置显示格式
+	ui.statusBar->showMessage(QString::fromLocal8Bit("正在处理实时视频"));
+	TESTtime = QDateTime::currentDateTime();//获取系统现在的时间
+	str_TESTtime = TESTtime.toString("yyyy-MM-dd hh:mm:ss ddd"); //设置显示格式
 	QVector<double> TimeR, TimeL, Rx, Ry, Lx, Ly;
 	OldFrameNum = 0;
 	OldFrameR.clear();
@@ -300,6 +304,7 @@ void EyePupilLocalization::on_pushButton_opencamera_clicked()
 		}
 	}
 	cv::destroyWindow("Camera Video");//销毁窗口
+	ui.statusBar->showMessage(QString::fromLocal8Bit("视频处理结束"));
 }
 //打印
 void EyePupilLocalization::on_pushButton_print_clicked()
@@ -309,6 +314,7 @@ void EyePupilLocalization::on_pushButton_print_clicked()
 		QMessageBox::warning(this, "Warn", "No Waveforms");
 		return;
 	}
+	ui.statusBar->showMessage(QString::fromLocal8Bit("准备打印"));
 	QPrinter printer;//新建打印机对象
 	printer.setPageSize(QPrinter::A4);//设置打印为A4纸张
 	QPrintPreviewDialog preview(&printer, this);
@@ -337,11 +343,12 @@ void EyePupilLocalization::printPreviewSlot(QPrinter * printerPixmap)
 	painterPixmap.drawText(rect_level, Qt::AlignHCenter, tr("LEVEL"));
 	painterPixmap.drawText(rect_vertical, Qt::AlignHCenter, tr("VERTICAL"));
 	painterPixmap.setFont(font_time);
-	painterPixmap.drawText(rect_time, Qt::AlignRight, str_time);
+	painterPixmap.drawText(rect_time, Qt::AlignRight, str_TESTtime);
 	//绘制波形
 	painterPixmap.drawPixmap(30, 50, pixmap_level);
 	painterPixmap.drawPixmap(30, 550, pixmap_vertical);
 	painterPixmap.end();
+	ui.statusBar->showMessage("");
 }
 //绘制波形
 void EyePupilLocalization::plotWight(bool IsLevel)
