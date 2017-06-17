@@ -35,6 +35,10 @@ EyePupilLocalization::EyePupilLocalization(QWidget *parent)
 	TESTtime = QDateTime::currentDateTime();//获取系统现在的时间
 	str_TESTtime= TESTtime.toString("yyyy-MM-dd hh:mm:ss ddd"); //设置显示格式
 
+	QSettings *configIniRead = new QSettings("config.ini", QSettings::IniFormat);//读取INI配置文件
+	QString WebCamAddress = configIniRead->value("/WebCam/address").toString();//获得配置文件中的网络摄像头地址
+	videoStreamAddress = WebCamAddress.toStdString();//QString转string格式。
+
 	ui.statusBar->showMessage(tr("Ready"));
 }
 EyePupilLocalization::~EyePupilLocalization()

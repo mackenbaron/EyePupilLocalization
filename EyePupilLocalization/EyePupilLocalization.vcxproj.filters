@@ -103,4 +103,9 @@
   <ItemGroup>
     <Image Include="Resources\eye.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="config.ini">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

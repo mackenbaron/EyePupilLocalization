@@ -22,7 +22,8 @@ public slots:
 	void printPreviewSlot(QPrinter *printerPixmap);//打印预览
 private:
 	Ui::EyePupilLocalizationClass ui;
-	std::string videoStreamAddress = "http://192.168.1.233:8080/?action=stream?dummy=param.mjpg";//红外摄像头网络地址
+	//std::string videoStreamAddress = "http://192.168.1.233:8080/?action=stream?dummy=param.mjpg";//红外摄像头网络地址
+	std::string videoStreamAddress;
 	QString fileName;//打开本地视频绝对地址
 	cv::Mat Leye;//左眼Mat类型
 	cv::Mat Reye;//右眼Mat类型
