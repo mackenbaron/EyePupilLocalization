@@ -6,6 +6,7 @@
 #include <qfiledialog.h>
 #include "Mat2QImage.h"
 #include "imgprocess.h" 
+#include "MatMerge.h"
 
 class EyePupilLocalization : public QMainWindow
 {
@@ -22,8 +23,9 @@ public slots:
 	void printPreviewSlot(QPrinter *printerPixmap);//打印预览
 private:
 	Ui::EyePupilLocalizationClass ui;
-	//std::string videoStreamAddress = "http://192.168.1.233:8080/?action=stream?dummy=param.mjpg";//红外摄像头网络地址
-	std::string videoStreamAddress;
+	//std::string videoStreamAddress = "http://192.168.1.233:8080/?action=stream?dummy=param.mjpg";//红外摄像头网络地址,改为了读取配置文件
+	std::string videoStreamAddressLeft;
+	std::string videoStreamAddressRight;
 	QString fileName;//打开本地视频绝对地址
 	cv::Mat Leye;//左眼Mat类型
 	cv::Mat Reye;//右眼Mat类型
@@ -41,6 +43,7 @@ private:
 	QDateTime TESTtime;//测试时间
 	QString str_TESTtime;//测试时间字符串标准格式
 
+	cv::Mat NoVedio;
 
 	void plotWight(bool IsLevel);//绘制波形
 };

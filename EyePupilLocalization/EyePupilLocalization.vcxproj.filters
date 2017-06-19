@@ -65,6 +65,9 @@
     <ClCompile Include="GeneratedFiles\Release\moc_qcustomplot.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="MatMerge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="eyepupillocalization.h">
@@ -96,12 +99,16 @@
     <ClInclude Include="resource1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MatMerge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="EyePupilLocalization.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\eye.ico" />
+    <Image Include="Resources\no video.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="config.ini">

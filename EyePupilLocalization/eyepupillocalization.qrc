@@ -1,4 +1,6 @@
 <RCC>
-    <qresource prefix="EyePupilLocalization">
+    <qresource prefix="/EyePupilLocalization">
+        <file alias="novideo">Resources/no video.png</file>
+        <file>Resources/eye.ico</file>
     </qresource>
 </RCC>

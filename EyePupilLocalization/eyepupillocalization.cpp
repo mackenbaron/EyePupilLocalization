@@ -36,8 +36,11 @@ EyePupilLocalization::EyePupilLocalization(QWidget *parent)
 	str_TESTtime= TESTtime.toString("yyyy-MM-dd hh:mm:ss ddd"); //设置显示格式
 
 	QSettings *configIniRead = new QSettings("config.ini", QSettings::IniFormat);//读取INI配置文件
-	QString WebCamAddress = configIniRead->value("/WebCam/address").toString();//获得配置文件中的网络摄像头地址
-	videoStreamAddress = WebCamAddress.toStdString();//QString转string格式。
+	videoStreamAddressLeft = configIniRead->value("/WebCam/addressL").toString().toStdString();//获得配置文件中的网络摄像头地址,左眼
+	videoStreamAddressRight = configIniRead->value("/WebCam/addressR").toString().toStdString();//右眼
+
+	QImage *image = new QImage(":/EyePupilLocalization/novideo");
+	NoVedio = QImage2Mat(*image);
 
 	ui.statusBar->showMessage(tr("Ready"));
 }
@@ -57,8 +60,8 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 	cv::VideoCapture capture(fileName.toStdString());
 	if (!capture.isOpened())
 	{
-		QMessageBox::warning(this, "Warn", "No video selected");
-		ui.statusBar->showMessage("");
+		QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("没有选中本地视频"));
+		ui.statusBar->showMessage(NULL);
 		return;
 	}
 	ui.statusBar->showMessage(QString::fromLocal8Bit("正在处理本地视频"));
@@ -75,7 +78,7 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 	OldLeyeY.clear();
 	bool stop(false);
 	cv::Mat frame;
-	cv::namedWindow("Video");//新建原始视频窗口
+	//cv::namedWindow("Video");//新建原始视频窗口
 	
 	ui.customPlot_x->xAxis->setRange(0, numFrames);//设置横坐标
 	ui.customPlot_y->xAxis->setRange(0, numFrames);//设置横坐标
@@ -93,12 +96,12 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 		{
 			break;//当没有帧数读取时就退出循环
 		}
-		cv::imshow("Video", frame);//显示原始视频
+		//cv::imshow("Video", frame);//显示原始视频
 		++FrameNum;
-		//ImgProcess pro(frame,1.7);//进行类操作
-		//pro.Process();
-		ImgProcess pro(frame, frame, 1.7);
-		pro.ProcessSignal();
+		ImgProcess pro(frame,1.7);//进行类操作
+		pro.Process();
+		//ImgProcess pro(frame, frame, 1.7);
+		//pro.ProcessSignal();
 
 		Leye = pro.OutLeye();//输出左眼
 		Reye = pro.OutReye();//输出右眼
@@ -117,6 +120,7 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 			ui.lcdNumber_Lr->display(floor(box[2]));
 			if (!IsLeyeCenter)
 			{
+				//第一帧作为中心原点
 				LeyeCenter.x = box[0];
 				LeyeCenter.y = box[1];
 				IsLeyeCenter = true;
@@ -130,6 +134,7 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 			}
 			else
 			{
+				//后续相对地址是基于第一帧位置的
 				ui.customPlot_x->graph(0)->addData(FrameNum, box[0] - LeyeCenter.x);
 				ui.customPlot_y->graph(0)->addData(FrameNum, box[1] - LeyeCenter.y);
 				OldLeyeX.push_back(box[0] - LeyeCenter.x);
@@ -176,32 +181,49 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 void EyePupilLocalization::on_pushButton_opencamera_clicked()
 {
 	ui.statusBar->showMessage(QString::fromLocal8Bit("正在打开摄像头"));
-	cv::VideoCapture vcap;//定义摄像头打开对象
-	QMessageBox::StandardButton rb = QMessageBox::question(NULL, "Choose", "Do you want to open PC camera?", QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);//提示选择打开哪一个摄像头
+	cv::VideoCapture vcapLeft;//定义摄像头打开对象
+	cv::VideoCapture vcapRight;
+	bool isWebCamLeft = true;
+	bool isWebCamRight = true;
+	QMessageBox::StandardButton rb = QMessageBox::question(NULL, QString::fromLocal8Bit("选择"), QString::fromLocal8Bit("是否打开本地摄像头？"), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);//提示选择打开哪一个摄像头
 	if (rb == QMessageBox::Yes)//打开本机PC上的摄像头
 	{
-		if (!vcap.open(0))
+		isWebCamRight = false;
+		if (!vcapLeft.open(0))
 		{
-			QMessageBox::warning(this, "Warn", "No Camera");
-			ui.statusBar->showMessage("");
+			QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("没有本地摄像头"));
+			isWebCamLeft = false;
+			ui.statusBar->showMessage(NULL);
 			return;
 		}
 	}
 	else if (rb == QMessageBox::No)//打开网络摄像头
 	{
-		if (!vcap.open(videoStreamAddress))
+		
+		if (!vcapLeft.open(videoStreamAddressLeft))
 		{
-			QMessageBox::warning(this, "Warn", "No Camera");
-			ui.statusBar->showMessage("");
+			QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("左眼摄像头连接失败"));
+			isWebCamLeft = false;
+		}
+
+		if (!vcapRight.open(videoStreamAddressRight))
+		{
+			QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("右眼摄像头连接失败"));
+			isWebCamRight = false;
+		}
+
+		if (isWebCamLeft||isWebCamRight)
+		{
+			ui.statusBar->showMessage(NULL);
 			return;
 		}
 	}
 	else//取消打开
 	{
-		ui.statusBar->showMessage("");
+		ui.statusBar->showMessage(NULL);
 		return;
 	}
-	ui.statusBar->showMessage(QString::fromLocal8Bit("正在处理实时视频"));
+	ui.statusBar->showMessage(QString::fromLocal8Bit("正在处理实时视频  按下ESE键退出"));
 	TESTtime = QDateTime::currentDateTime();//获取系统现在的时间
 	str_TESTtime = TESTtime.toString("yyyy-MM-dd hh:mm:ss ddd"); //设置显示格式
 	QVector<double> TimeR, TimeL, Rx, Ry, Lx, Ly;
@@ -213,25 +235,47 @@ void EyePupilLocalization::on_pushButton_opencamera_clicked()
 	OldLeyeX.clear();
 	OldLeyeY.clear();
 	bool stop(false);
-	cv::namedWindow("Camera Video");
-	cv::Mat frame;
+	//cv::namedWindow("Camera Video");
+	cv::Mat frameL;//右眼
+	cv::Mat frameR;//左眼
+	cv::Mat frame;//合成视频
 
 	bool IsReyeCenter(false);//是否右眼出来第一个定位坐标
 	bool IsLeyeCenter(false);//是否左眼出来第一个定位坐标
 	int FrameNum = 0;//视频处理帧的次数
 	CvPoint ReyeCenter;//右眼中心
 	CvPoint LeyeCenter;//左眼中心
+
+	if (!isWebCamLeft)
+	{
+		frameL = NoVedio;
+	}
+	if (!isWebCamRight)
+	{
+		frameR = NoVedio;
+	}
 	while (!stop)
 	{
-		if (!vcap.read(frame))
+		if (isWebCamLeft)
 		{
-			break;
+			if (!vcapLeft.read(frameL))
+			{
+				break;
+			}
 		}
-		cv::imshow("Camera Video", frame);//显示摄像头内容
+		if (isWebCamRight)
+		{
+			if (!vcapRight.read(frameR))
+			{
+				break;
+			}
+		}
+		//frame = MatMerge(frameL, frameR);
+		//cv::imshow("Camera Video", frame);//显示摄像头内容
 
 		++FrameNum;
 		++OldFrameNum;
-		ImgProcess pro(frame, frame, 1.7);
+		ImgProcess pro(frameL, frameR, 1.7);
 		pro.ProcessSignal();
 
 		Leye = pro.OutLeye();//输出左眼
@@ -249,6 +293,7 @@ void EyePupilLocalization::on_pushButton_opencamera_clicked()
 			ui.lcdNumber_Lr->display(floor(box[2]));
 			if (!IsLeyeCenter)
 			{
+				//第一帧作为中心原点
 				LeyeCenter.x = box[0];
 				LeyeCenter.y = box[1];
 				IsLeyeCenter = true;
@@ -262,6 +307,7 @@ void EyePupilLocalization::on_pushButton_opencamera_clicked()
 			}
 			else
 			{
+				//后续相对地址是基于第一帧位置的
 				ui.customPlot_x->graph(0)->addData(FrameNum, box[0] - LeyeCenter.x);
 				ui.customPlot_y->graph(0)->addData(FrameNum, box[1] - LeyeCenter.y);
 				
@@ -315,7 +361,7 @@ void EyePupilLocalization::on_pushButton_print_clicked()
 {
 	if (OldFrameNum == 0)
 	{
-		QMessageBox::warning(this, "Warn", "No Waveforms");
+		QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("没有需要打印的波形"));
 		return;
 	}
 	ui.statusBar->showMessage(QString::fromLocal8Bit("准备打印"));
@@ -352,7 +398,7 @@ void EyePupilLocalization::printPreviewSlot(QPrinter * printerPixmap)
 	painterPixmap.drawPixmap(30, 50, pixmap_level);
 	painterPixmap.drawPixmap(30, 550, pixmap_vertical);
 	painterPixmap.end();
-	ui.statusBar->showMessage("");
+	ui.statusBar->showMessage(NULL);
 }
 //绘制波形
 void EyePupilLocalization::plotWight(bool IsLevel)

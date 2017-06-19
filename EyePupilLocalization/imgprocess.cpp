@@ -131,6 +131,7 @@ void ImgProcess::Process()
 //瞳孔定位，左右眼分别
 void ImgProcess::ProcessSignal()
 {
+	
 	cv::Mat Lgrayimg, Rgrayimg;
 	double temparea;
 	Lgrayimg = GrayDetect(Leye);//得到灰度图,此时inimg没有被修改
@@ -155,7 +156,7 @@ void ImgProcess::ProcessSignal()
 		Lrect = cv::boundingRect(Lcontours[LmaxAreaIndex]);
 		if ((Lrect.width / (float)Lrect.height) < EyeRatio && (Lrect.height / (float)Lrect.width) < EyeRatio && Lrect.width > 0 && Lrect.height > 0)//左眼闭眼检测
 		{
-			Box Lbox = circleLeastFit(Lcontours[LmaxAreaIndex]);
+			Box Lbox = circleLeastFit(Lcontours[LmaxAreaIndex]);//左眼拟合圆检测
 			if (Lbox.r != 0)
 			{
 				//如果返回不为0

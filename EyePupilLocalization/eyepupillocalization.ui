@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>EyePupilLocalization</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="eyepupillocalization.qrc">
+    <normaloff>:/EyePupilLocalization/Resources/eye.ico</normaloff>:/EyePupilLocalization/Resources/eye.ico</iconset>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QWidget" name="horizontalLayoutWidget_2">
     <property name="geometry">

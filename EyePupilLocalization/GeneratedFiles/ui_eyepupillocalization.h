@@ -71,6 +71,9 @@ public:
         if (EyePupilLocalizationClass->objectName().isEmpty())
             EyePupilLocalizationClass->setObjectName(QStringLiteral("EyePupilLocalizationClass"));
         EyePupilLocalizationClass->resize(525, 711);
+        QIcon icon;
+        icon.addFile(QStringLiteral(":/EyePupilLocalization/Resources/eye.ico"), QSize(), QIcon::Normal, QIcon::Off);
+        EyePupilLocalizationClass->setWindowIcon(icon);
         centralWidget = new QWidget(EyePupilLocalizationClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         horizontalLayoutWidget_2 = new QWidget(centralWidget);

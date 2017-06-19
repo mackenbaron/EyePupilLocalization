@@ -169,6 +169,7 @@
     <ClCompile Include="imgprocess.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mat2QImage.cpp" />
+    <ClCompile Include="MatMerge.cpp" />
     <ClCompile Include="qcustomplot.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -215,6 +216,7 @@
     <ClInclude Include="GeneratedFiles\ui_eyepupillocalization.h" />
     <ClInclude Include="imgprocess.h" />
     <ClInclude Include="Mat2QImage.h" />
+    <ClInclude Include="MatMerge.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="resource1.h" />
     <CustomBuild Include="qcustomplot.h">
@@ -254,6 +256,7 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Rcc%27ing %(Identity)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\qrc_%(Filename).cpp;%(Outputs)</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\rcc.exe" -name "%(Filename)" -no-compress "%(FullPath)" -o .\GeneratedFiles\qrc_%(Filename).cpp</Command>
+      <SubType>Designer</SubType>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -261,6 +264,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\eye.ico" />
+    <Image Include="Resources\no video.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="config.ini" />
