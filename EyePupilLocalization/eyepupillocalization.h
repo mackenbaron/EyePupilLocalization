@@ -65,6 +65,10 @@ private:
 	QTimer *timer;//定时器
 	int EyeNum;//眼睛数目
 
+	QImage NoVideoImage;
+	int LabelWidth;
+	int LabelHeight;
+
 	void plotWight(bool IsLevel);//绘制波形
 	
 };

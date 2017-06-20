@@ -38,9 +38,11 @@ EyePupilLocalization::EyePupilLocalization(QWidget *parent)
 	QSettings *configIniRead = new QSettings("config.ini", QSettings::IniFormat);//读取INI配置文件
 	videoStreamAddressLeft = configIniRead->value("/WebCam/addressL").toString().toStdString();//获得配置文件中的网络摄像头地址,左眼
 	videoStreamAddressRight = configIniRead->value("/WebCam/addressR").toString().toStdString();//右眼
-
-	QImage *image = new QImage(":/EyePupilLocalization/novideo");
-	NoVedio = QImage2Mat(*image);
+	
+	QImage image;
+	image.load(":/EyePupilLocalization/NoVedio");
+	NoVideoImage = image.scaled(ui.label_Leye->width(), ui.label_Leye->height());
+	NoVedio = QImage2Mat(NoVideoImage);
 
 	timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(readFarme()));//建立信号槽
@@ -232,12 +234,27 @@ void EyePupilLocalization::readFarme()
 		pro.Start(frameL, frameR, 1.7, EyeNum);
 		pro.ProcessSignal();
 	}
-	
-	Leye = pro.OutLeye();//输出左眼
-	Reye = pro.OutReye();//输出右眼
 
-	Limg = Mat2QImage(Leye);//将左眼MAT类型装为IMAGE类型
-	Rimg = Mat2QImage(Reye);//将右眼MAT类型装为IMAGE类型
+	if (EyeNum == NOT_LEYE)
+	{
+		//如果没有左眼
+		Limg = NoVideoImage;
+	}
+	else
+	{
+		Leye = pro.OutLeye();//输出左眼
+		Limg = Mat2QImage(Leye);//将左眼MAT类型装为IMAGE类型
+	}
+	if (EyeNum == NOT_REYE)
+	{
+		//如果没有右眼
+		Rimg = NoVideoImage;
+	}
+	else
+	{
+		Reye = pro.OutReye();//输出右眼
+		Rimg = Mat2QImage(Reye);//将右眼MAT类型装为IMAGE类型
+	}
 
 	ui.label_Leye->setPixmap(QPixmap::fromImage(Limg));//在程序界面将左眼眼显示出来
 	ui.label_Reye->setPixmap(QPixmap::fromImage(Rimg));//在程序界面将右眼显示出来
