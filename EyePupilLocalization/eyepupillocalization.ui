@@ -73,8 +73,8 @@
      <rect>
       <x>20</x>
       <y>10</y>
-      <width>111</width>
-      <height>31</height>
+      <width>100</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
@@ -219,10 +219,10 @@
    <widget class="QPushButton" name="Button_print">
     <property name="geometry">
      <rect>
-      <x>390</x>
+      <x>400</x>
       <y>10</y>
-      <width>111</width>
-      <height>31</height>
+      <width>100</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
@@ -232,14 +232,27 @@
    <widget class="QPushButton" name="Button_opencamera">
     <property name="geometry">
      <rect>
-      <x>200</x>
+      <x>150</x>
       <y>10</y>
-      <width>111</width>
-      <height>31</height>
+      <width>100</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
      <string>打开摄像头</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Button_closecamera">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>10</y>
+      <width>100</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>关闭摄像头</string>
     </property>
    </widget>
   </widget>
@@ -283,8 +296,8 @@
    <slot>on_pushButton_openvideo_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>124</x>
-     <y>61</y>
+     <x>119</x>
+     <y>74</y>
     </hint>
     <hint type="destinationlabel">
      <x>182</x>
@@ -315,12 +328,28 @@
    <slot>on_pushButton_opencamera_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>285</x>
-     <y>72</y>
+     <x>235</x>
+     <y>74</y>
     </hint>
     <hint type="destinationlabel">
      <x>239</x>
      <y>118</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Button_closecamera</sender>
+   <signal>clicked()</signal>
+   <receiver>EyePupilLocalizationClass</receiver>
+   <slot>on_pushButton_closecamera_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>348</x>
+     <y>74</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>359</x>
+     <y>90</y>
     </hint>
    </hints>
   </connection>
@@ -329,5 +358,6 @@
   <slot>on_pushButton_openvideo_clicked()</slot>
   <slot>on_pushButton_print_clicked()</slot>
   <slot>on_pushButton_opencamera_clicked()</slot>
+  <slot>on_pushButton_closecamera_clicked()</slot>
  </slots>
 </ui>

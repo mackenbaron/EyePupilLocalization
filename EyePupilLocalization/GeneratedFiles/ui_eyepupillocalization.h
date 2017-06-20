@@ -62,6 +62,7 @@ public:
     QCustomPlot *customPlot_y;
     QPushButton *Button_print;
     QPushButton *Button_opencamera;
+    QPushButton *Button_closecamera;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -128,7 +129,7 @@ public:
 
         Button_openvideo = new QPushButton(centralWidget);
         Button_openvideo->setObjectName(QStringLiteral("Button_openvideo"));
-        Button_openvideo->setGeometry(QRect(20, 10, 111, 31));
+        Button_openvideo->setGeometry(QRect(20, 10, 100, 30));
         label_10 = new QLabel(centralWidget);
         label_10->setObjectName(QStringLiteral("label_10"));
         label_10->setGeometry(QRect(380, 50, 54, 12));
@@ -203,10 +204,13 @@ public:
         customPlot_y->setGeometry(QRect(20, 510, 481, 141));
         Button_print = new QPushButton(centralWidget);
         Button_print->setObjectName(QStringLiteral("Button_print"));
-        Button_print->setGeometry(QRect(390, 10, 111, 31));
+        Button_print->setGeometry(QRect(400, 10, 100, 30));
         Button_opencamera = new QPushButton(centralWidget);
         Button_opencamera->setObjectName(QStringLiteral("Button_opencamera"));
-        Button_opencamera->setGeometry(QRect(200, 10, 111, 31));
+        Button_opencamera->setGeometry(QRect(150, 10, 100, 30));
+        Button_closecamera = new QPushButton(centralWidget);
+        Button_closecamera->setObjectName(QStringLiteral("Button_closecamera"));
+        Button_closecamera->setGeometry(QRect(270, 10, 100, 30));
         EyePupilLocalizationClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(EyePupilLocalizationClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -223,6 +227,7 @@ public:
         QObject::connect(Button_openvideo, SIGNAL(clicked()), EyePupilLocalizationClass, SLOT(on_pushButton_openvideo_clicked()));
         QObject::connect(Button_print, SIGNAL(clicked()), EyePupilLocalizationClass, SLOT(on_pushButton_print_clicked()));
         QObject::connect(Button_opencamera, SIGNAL(clicked()), EyePupilLocalizationClass, SLOT(on_pushButton_opencamera_clicked()));
+        QObject::connect(Button_closecamera, SIGNAL(clicked()), EyePupilLocalizationClass, SLOT(on_pushButton_closecamera_clicked()));
 
         QMetaObject::connectSlotsByName(EyePupilLocalizationClass);
     } // setupUi
@@ -243,6 +248,7 @@ public:
         label_Leye->setText(QString());
         Button_print->setText(QApplication::translate("EyePupilLocalizationClass", "\346\211\223\345\215\260", Q_NULLPTR));
         Button_opencamera->setText(QApplication::translate("EyePupilLocalizationClass", "\346\211\223\345\274\200\346\221\204\345\203\217\345\244\264", Q_NULLPTR));
+        Button_closecamera->setText(QApplication::translate("EyePupilLocalizationClass", "\345\205\263\351\227\255\346\221\204\345\203\217\345\244\264", Q_NULLPTR));
     } // retranslateUi
 
 };

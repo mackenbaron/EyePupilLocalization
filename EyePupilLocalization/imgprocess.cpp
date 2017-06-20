@@ -1,5 +1,19 @@
 #include "imgprocess.h"  
 
+void ImgProcess::Start(cv::Mat image, double ratio)
+{
+	inimg = image;
+	EyeRatio = ratio;
+}
+
+void ImgProcess::Start(cv::Mat leye, cv::Mat reye, double ratio, int eye_num)
+{
+	Leye = leye;
+	Reye = reye;
+	EyeRatio = ratio;
+	EyeNum = eye_num;
+}
+
 //输出结果
 cv::Mat ImgProcess::Outputimg()
 {
@@ -131,16 +145,29 @@ void ImgProcess::Process()
 //瞳孔定位，左右眼分别
 void ImgProcess::ProcessSignal()
 {
-	
 	cv::Mat Lgrayimg, Rgrayimg;
-	double temparea;
-	Lgrayimg = GrayDetect(Leye);//得到灰度图,此时inimg没有被修改
-	Rgrayimg = GrayDetect(Reye);
-	EdgeDetect(Lgrayimg);//边缘检测
-	EdgeDetect(Rgrayimg);//边缘检测
-	cv::findContours(Lgrayimg, Lcontours, Lhierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_NONE);//寻找左眼轮廓
-	cv::findContours(Rgrayimg, Rcontours, Rhierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_NONE);//寻找右眼轮廓
-	if (Lcontours.size() > 0)//左眼有轮廓
+	double temparea;//暂时最大圆面积
+	bool IsLeye = false;//用于判断是否有左眼
+	bool IsReye = false;//用于判断是否有右眼
+
+	if (EyeNum == NOT_LEYE || EyeNum == ALL_EYE)
+	{
+		//此时没有左眼,只有右眼
+		Rgrayimg = GrayDetect(Reye);
+		EdgeDetect(Rgrayimg);//边缘检测
+		cv::findContours(Rgrayimg, Rcontours, Rhierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_NONE);//寻找右眼轮廓
+		IsReye = true;//有右眼
+	}
+	if (EyeNum == NOT_REYE || EyeNum == ALL_EYE)
+	{
+		//此时没有右眼,只有左眼
+		Lgrayimg = GrayDetect(Leye);//得到灰度图,此时inimg没有被修改
+		EdgeDetect(Lgrayimg);//边缘检测
+		cv::findContours(Lgrayimg, Lcontours, Lhierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_NONE);//寻找左眼轮廓
+		IsLeye = true;//有左眼
+	}
+
+	if ((Lcontours.size() > 0) && IsLeye)//左眼有轮廓
 	{
 		for (int i = 0; i < Lcontours.size(); ++i)
 		{
@@ -168,7 +195,7 @@ void ImgProcess::ProcessSignal()
 			}
 		}
 	}
-	if (Rcontours.size() > 0)//右眼有轮廓
+	if ((Rcontours.size() > 0) && IsReye)//右眼有轮廓
 	{
 		for (int i = 0; i < Rcontours.size(); ++i)
 		{

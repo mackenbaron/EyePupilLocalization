@@ -4,12 +4,18 @@
 #include <stdio.h>  
 #include <vector>
 #include <opencv2/core/core.hpp> 
+#include "eyepupillocalization.h"
 
-typedef struct Box
+#define ALL_EYE 0//摄像头双眼都在
+#define NOT_LEYE 1//摄像头没有左眼
+#define NOT_REYE 2//摄像头没有右眼
+#define VEDIO_EYE 3//本地视频双眼都在
+
+typedef struct Box//定义圆
 {
-	double x;
-	double y;
-	double r;
+	double x;//x坐标
+	double y;//x坐标
+	double r;//半径
 }Box;
 
 //视频处理类  
@@ -17,10 +23,13 @@ class ImgProcess
 {
 private:
 	double EyeRatio;
+	int EyeNum;
+
 	cv::Mat inimg;//输入图像  
 	cv::Mat outimg;//输出结果  
 	cv::Mat Leye;//左眼
 	cv::Mat Reye;//右眼
+	
 	std::vector<std::vector<cv::Point>> Lcontours;//左眼轮廓检测
 	std::vector<std::vector<cv::Point>> Rcontours;//右眼轮廓检测
 	std::vector<cv::Vec4i> Lhierarchy;//左眼轮廓关系
@@ -47,10 +56,14 @@ public:
 	std::vector<cv::Vec3f> Lcircles;//整体检测的左眼瞳孔圆
 	std::vector<cv::Vec3f> Rcircles;//整体检测的右眼瞳孔圆
 
+	ImgProcess() {};//默认构造函数
 	ImgProcess(cv::Mat image, double ratio = 1.3) :inimg(image), EyeRatio(ratio) {}//构造函数
-	ImgProcess(cv::Mat leye, cv::Mat reye, double ratio = 1.3) :Leye(leye), Reye(reye), EyeRatio(ratio) {}
-	void Process();
-	void ProcessSignal();
+	ImgProcess(cv::Mat leye, cv::Mat reye, double ratio = 1.3, int eye_num = 2) :Leye(leye), Reye(reye), EyeRatio(ratio), EyeNum(eye_num) {}
+
+	void Start(cv::Mat, double ratio = 1.3);
+	void Start(cv::Mat, cv::Mat, double ratio = 1.3, int eye_num = 2);
+	void Process();//双眼整体输入识别
+	void ProcessSignal();//双眼分别输入识别
 	cv::Mat Outputimg();//输出结果  
 	cv::Mat OutLeye();//输出左眼  
 	cv::Mat OutReye();//输出右眼

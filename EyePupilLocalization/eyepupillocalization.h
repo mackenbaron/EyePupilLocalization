@@ -7,6 +7,7 @@
 #include "Mat2QImage.h"
 #include "imgprocess.h" 
 #include "MatMerge.h"
+#include <conio.h>
 
 class EyePupilLocalization : public QMainWindow
 {
@@ -18,9 +19,14 @@ public:
 
 public slots:
 	void on_pushButton_openvideo_clicked();//打开本地视频
+	void on_pushButton_closecamera_clicked();//关闭摄像头
 	void on_pushButton_opencamera_clicked();//打开摄像头
 	void on_pushButton_print_clicked();//打印
 	void printPreviewSlot(QPrinter *printerPixmap);//打印预览
+
+private slots:
+	void readFarme();
+
 private:
 	Ui::EyePupilLocalizationClass ui;
 	//std::string videoStreamAddress = "http://192.168.1.233:8080/?action=stream?dummy=param.mjpg";//红外摄像头网络地址,改为了读取配置文件
@@ -44,8 +50,23 @@ private:
 	QString str_TESTtime;//测试时间字符串标准格式
 
 	cv::Mat NoVedio;
+	cv::VideoCapture vcapLeft;//定义左摄像头打开对象
+	cv::VideoCapture vcapRight;//定义右摄像头打开对象
+	cv::VideoCapture capture;//定义本地视频打开对象
+	cv::Mat frameL;//右眼
+	cv::Mat frameR;//左眼
+	cv::Mat frameAll;//本地视频帧,双眼
+	int FrameNum;//帧数
+	bool IsReyeCenter;//是否右眼出来第一个定位坐标
+	bool IsLeyeCenter;//是否左眼出来第一个定位坐标
+	CvPoint ReyeCenter;//右眼中心
+	CvPoint LeyeCenter;//左眼中心
+	QVector<double> TimeR, TimeL, Rx, Ry, Lx, Ly;//绘图点坐标
+	QTimer *timer;//定时器
+	int EyeNum;//眼睛数目
 
 	void plotWight(bool IsLevel);//绘制波形
+	
 };
 
 #endif 

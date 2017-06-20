@@ -30,7 +30,7 @@ EyePupilLocalization::EyePupilLocalization(QWidget *parent)
 	ui.customPlot_print->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |
 		QCP::iSelectLegend | QCP::iSelectPlottables);//创建曲线范围
 	ui.customPlot_print->xAxis->setLabel("TIME");//设置横坐标
-	ui.customPlot_print->yAxis->setRange(-50, 50);//设置纵坐标范围
+	ui.customPlot_print->yAxis->setRange(-70, 70);//设置纵坐标范围
 
 	TESTtime = QDateTime::currentDateTime();//获取系统现在的时间
 	str_TESTtime= TESTtime.toString("yyyy-MM-dd hh:mm:ss ddd"); //设置显示格式
@@ -42,6 +42,11 @@ EyePupilLocalization::EyePupilLocalization(QWidget *parent)
 	QImage *image = new QImage(":/EyePupilLocalization/novideo");
 	NoVedio = QImage2Mat(*image);
 
+	timer = new QTimer(this);
+	connect(timer, SIGNAL(timeout()), this, SLOT(readFarme()));//建立信号槽
+
+	ui.Button_closecamera->setEnabled(false);
+
 	ui.statusBar->showMessage(tr("Ready"));
 }
 EyePupilLocalization::~EyePupilLocalization()
@@ -50,14 +55,14 @@ EyePupilLocalization::~EyePupilLocalization()
 //打开视频
 void EyePupilLocalization::on_pushButton_openvideo_clicked()
 {
-	ui.statusBar->showMessage(QString::fromLocal8Bit("正在打开本地摄像头"));
+	ui.statusBar->showMessage(QString::fromLocal8Bit("正在打开本地视频"));
 	fileName = QFileDialog::getOpenFileName(
 		this,
 		"Open Video",
 		QDir::currentPath(),
 		"Video files(*.avi)"
 	);
-	cv::VideoCapture capture(fileName.toStdString());
+	capture.open(fileName.toStdString());
 	if (!capture.isOpened())
 	{
 		QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("没有选中本地视频"));
@@ -68,121 +73,43 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 	TESTtime = QDateTime::currentDateTime();//获取系统现在的时间
 	str_TESTtime = TESTtime.toString("yyyy-MM-dd hh:mm:ss ddd"); //设置显示格式
 	double numFrames = capture.get(CV_CAP_PROP_FRAME_COUNT);
-	QVector<double> TimeR, TimeL, Rx, Ry, Lx, Ly;
 	OldFrameNum = numFrames;
-	OldFrameR.clear();
+	OldFrameR.clear();//清空上一条记录
 	OldFrameL.clear();
 	OldReyeX.clear();
 	OldReyeY.clear();
 	OldLeyeX.clear();
 	OldLeyeY.clear();
-	bool stop(false);
-	cv::Mat frame;
-	//cv::namedWindow("Video");//新建原始视频窗口
 	
 	ui.customPlot_x->xAxis->setRange(0, numFrames);//设置横坐标
 	ui.customPlot_y->xAxis->setRange(0, numFrames);//设置横坐标
+	ui.customPlot_x->yAxis->setRange(-70, 70);//设置纵坐标范围
+	ui.customPlot_y->yAxis->setRange(-70, 70);//设置纵坐标范围
 
-	//cv::Mat temp = cv::imread("C:\\Users\\LZH\\Desktop\\1.png", -1);
+	IsReyeCenter = false;
+	IsLeyeCenter = false;
+	FrameNum = 0;//视频处理帧的次数
 
-	bool IsReyeCenter(false);//是否右眼出来第一个定位坐标
-	bool IsLeyeCenter(false);//是否左眼出来第一个定位坐标
-	int FrameNum = 0;//视频处理帧的次数
-	CvPoint ReyeCenter;//右眼中心
-	CvPoint LeyeCenter;//左眼中心
-	while (!stop)
-	{
-		if (!capture.read(frame))//读取视频每帧
-		{
-			break;//当没有帧数读取时就退出循环
-		}
-		//cv::imshow("Video", frame);//显示原始视频
-		++FrameNum;
-		ImgProcess pro(frame,1.7);//进行类操作
-		pro.Process();
-		//ImgProcess pro(frame, frame, 1.7);
-		//pro.ProcessSignal();
+	TimeR.clear();//清空绘图点坐标
+	TimeL.clear();
+	Rx.clear();
+	Ry.clear();
+	Lx.clear();
+	Ly.clear();
 
-		Leye = pro.OutLeye();//输出左眼
-		Reye = pro.OutReye();//输出右眼
+	ui.customPlot_x->graph(0)->setData(TimeL, Lx);
+	ui.customPlot_y->graph(0)->setData(TimeL, Ly);
+	ui.customPlot_x->graph(1)->setData(TimeR, Rx);
+	ui.customPlot_y->graph(1)->setData(TimeR, Ry);
 
-		Limg = Mat2QImage(Leye);//将左眼MAT类型装为IMAGE类型
-		Rimg = Mat2QImage(Reye);//将右眼MAT类型装为IMAGE类型
-		ui.label_Leye->setPixmap(QPixmap::fromImage(Limg));//在程序界面将左眼眼显示出来
-		ui.label_Reye->setPixmap(QPixmap::fromImage(Rimg));//在程序界面将右眼显示出来
-
-		//插入坐标
-		for (cv::Vec3f box : pro.Lcircles)
-		{
-			//左眼
-			ui.lcdNumber_Lx->display(floor(box[0]));
-			ui.lcdNumber_Ly->display(floor(box[1]));
-			ui.lcdNumber_Lr->display(floor(box[2]));
-			if (!IsLeyeCenter)
-			{
-				//第一帧作为中心原点
-				LeyeCenter.x = box[0];
-				LeyeCenter.y = box[1];
-				IsLeyeCenter = true;
-				Lx.push_back(0);
-				Ly.push_back(0);
-				TimeL.push_back(FrameNum);
-				ui.customPlot_x->graph(0)->setData(TimeL, Lx);
-				ui.customPlot_y->graph(0)->setData(TimeL, Ly);
-				OldLeyeX.push_back(0);
-				OldLeyeY.push_back(0);
-			}
-			else
-			{
-				//后续相对地址是基于第一帧位置的
-				ui.customPlot_x->graph(0)->addData(FrameNum, box[0] - LeyeCenter.x);
-				ui.customPlot_y->graph(0)->addData(FrameNum, box[1] - LeyeCenter.y);
-				OldLeyeX.push_back(box[0] - LeyeCenter.x);
-				OldLeyeY.push_back(box[1] - LeyeCenter.y);
-			}
-			OldFrameL.push_back(FrameNum);
-		}
-		for (cv::Vec3f box : pro.Rcircles)
-		{
-			//右眼
-			ui.lcdNumber_Rx->display(floor(box[0]));
-			ui.lcdNumber_Ry->display(floor(box[1]));
-			ui.lcdNumber_Rr->display(floor(box[2]));
-			if (!IsReyeCenter)
-			{
-				ReyeCenter.x = box[0];
-				ReyeCenter.y = box[1];
-				IsReyeCenter = true;
-				Rx.push_back(0);
-				Ry.push_back(0);
-				TimeR.push_back(FrameNum);
-				ui.customPlot_x->graph(1)->setData(TimeR, Rx);
-				ui.customPlot_y->graph(1)->setData(TimeR, Ry);
-				OldReyeX.push_back(0);
-				OldReyeY.push_back(0);
-			}
-			else
-			{
-				ui.customPlot_x->graph(1)->addData(FrameNum, box[0] - ReyeCenter.x);
-				ui.customPlot_y->graph(1)->addData(FrameNum, box[1] - ReyeCenter.y);
-				OldReyeX.push_back(box[0] - ReyeCenter.x);
-				OldReyeY.push_back(box[1] - ReyeCenter.y);
-			}
-			OldFrameR.push_back(FrameNum);
-		}
-		ui.customPlot_x->replot();//重绘x坐标波形图
-		ui.customPlot_y->replot();//重绘y坐标波形图
-		cv::waitKey(1);
-	}
-	cv::destroyWindow("Video");//销毁窗口
-	ui.statusBar->showMessage(QString::fromLocal8Bit("视频处理结束"));
+	EyeNum = VEDIO_EYE;
+	timer->start(20);
 }
 //打开摄像头
 void EyePupilLocalization::on_pushButton_opencamera_clicked()
 {
 	ui.statusBar->showMessage(QString::fromLocal8Bit("正在打开摄像头"));
-	cv::VideoCapture vcapLeft;//定义摄像头打开对象
-	cv::VideoCapture vcapRight;
+	
 	bool isWebCamLeft = true;
 	bool isWebCamRight = true;
 	QMessageBox::StandardButton rb = QMessageBox::question(NULL, QString::fromLocal8Bit("选择"), QString::fromLocal8Bit("是否打开本地摄像头？"), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);//提示选择打开哪一个摄像头
@@ -223,138 +150,183 @@ void EyePupilLocalization::on_pushButton_opencamera_clicked()
 		ui.statusBar->showMessage(NULL);
 		return;
 	}
-	ui.statusBar->showMessage(QString::fromLocal8Bit("正在处理实时视频  按下ESE键退出"));
+	ui.statusBar->showMessage(QString::fromLocal8Bit("正在处理实时视频"));
 	TESTtime = QDateTime::currentDateTime();//获取系统现在的时间
 	str_TESTtime = TESTtime.toString("yyyy-MM-dd hh:mm:ss ddd"); //设置显示格式
-	QVector<double> TimeR, TimeL, Rx, Ry, Lx, Ly;
-	OldFrameNum = 0;
+
+	OldFrameNum = 0;//清空上一条记录
 	OldFrameR.clear();
 	OldFrameL.clear();
 	OldReyeX.clear();
 	OldReyeY.clear();
 	OldLeyeX.clear();
 	OldLeyeY.clear();
-	bool stop(false);
-	//cv::namedWindow("Camera Video");
-	cv::Mat frameL;//右眼
-	cv::Mat frameR;//左眼
-	cv::Mat frame;//合成视频
 
-	bool IsReyeCenter(false);//是否右眼出来第一个定位坐标
-	bool IsLeyeCenter(false);//是否左眼出来第一个定位坐标
-	int FrameNum = 0;//视频处理帧的次数
-	CvPoint ReyeCenter;//右眼中心
-	CvPoint LeyeCenter;//左眼中心
+	TimeR.clear();//清空绘图点坐标
+	TimeL.clear();
+	Rx.clear();
+	Ry.clear();
+	Lx.clear();
+	Ly.clear();
+
+	EyeNum = ALL_EYE;//假定一开始两个眼睛都有
+	IsReyeCenter = false;
+	IsLeyeCenter = false;
+	FrameNum = 0;//视频处理帧的次数
 
 	if (!isWebCamLeft)
 	{
 		frameL = NoVedio;
+		EyeNum = NOT_LEYE;
 	}
 	if (!isWebCamRight)
 	{
 		frameR = NoVedio;
+		EyeNum = NOT_REYE;
 	}
-	while (!stop)
+
+	ui.customPlot_x->graph(0)->setData(TimeL, Lx);
+	ui.customPlot_y->graph(0)->setData(TimeL, Ly);
+	ui.customPlot_x->graph(1)->setData(TimeR, Rx);
+	ui.customPlot_y->graph(1)->setData(TimeR, Ry);
+
+	ui.Button_closecamera->setEnabled(true);
+	ui.Button_opencamera->setEnabled(false);
+	timer->start(20);
+}
+//读取视频帧数
+void EyePupilLocalization::readFarme()
+{
+	if (EyeNum == NOT_LEYE || EyeNum == ALL_EYE)
 	{
-		if (isWebCamLeft)
+		//此时只有右眼
+		vcapRight >> frameR;
+	}
+	if (EyeNum == NOT_REYE || EyeNum == ALL_EYE)
+	{
+		//此时只有左眼
+		vcapLeft >> frameL;
+	}
+	if (EyeNum == VEDIO_EYE)
+	{
+		//本地视频
+		if (!capture.read(frameAll))//读取视频每帧
 		{
-			if (!vcapLeft.read(frameL))
-			{
-				break;
-			}
+			timer->stop();
+			ui.statusBar->showMessage(QString::fromLocal8Bit("视频处理结束"));
+			return;//当没有帧数读取时就退出循环
 		}
-		if (isWebCamRight)
-		{
-			if (!vcapRight.read(frameR))
-			{
-				break;
-			}
-		}
-		//frame = MatMerge(frameL, frameR);
-		//cv::imshow("Camera Video", frame);//显示摄像头内容
-
-		++FrameNum;
-		++OldFrameNum;
-		ImgProcess pro(frameL, frameR, 1.7);
+	}
+	++FrameNum;
+	++OldFrameNum;
+	ImgProcess pro;
+	if (EyeNum == VEDIO_EYE)
+	{
+		//打开本地视频
+		pro.Start(frameAll, 1.7);
+		pro.Process();
+	}
+	else
+	{
+		//实时显示
+		pro.Start(frameL, frameR, 1.7, EyeNum);
 		pro.ProcessSignal();
+	}
+	
+	Leye = pro.OutLeye();//输出左眼
+	Reye = pro.OutReye();//输出右眼
 
-		Leye = pro.OutLeye();//输出左眼
-		Reye = pro.OutReye();//输出右眼
+	Limg = Mat2QImage(Leye);//将左眼MAT类型装为IMAGE类型
+	Rimg = Mat2QImage(Reye);//将右眼MAT类型装为IMAGE类型
 
-		Limg = Mat2QImage(Leye);//将左眼MAT类型装为IMAGE类型
-		Rimg = Mat2QImage(Reye);//将右眼MAT类型装为IMAGE类型
-		ui.label_Leye->setPixmap(QPixmap::fromImage(Limg));//在程序界面将左眼眼显示出来
-		ui.label_Reye->setPixmap(QPixmap::fromImage(Rimg));//在程序界面将右眼显示出来
-		for (cv::Vec3f box : pro.Lcircles)
+	ui.label_Leye->setPixmap(QPixmap::fromImage(Limg));//在程序界面将左眼眼显示出来
+	ui.label_Reye->setPixmap(QPixmap::fromImage(Rimg));//在程序界面将右眼显示出来
+
+	for (cv::Vec3f box : pro.Lcircles)
+	{
+		//左眼
+		ui.lcdNumber_Lx->display(floor(box[0]));
+		ui.lcdNumber_Ly->display(floor(box[1]));
+		ui.lcdNumber_Lr->display(floor(box[2]));
+		if (!IsLeyeCenter)
 		{
-			//左眼
-			ui.lcdNumber_Lx->display(floor(box[0]));
-			ui.lcdNumber_Ly->display(floor(box[1]));
-			ui.lcdNumber_Lr->display(floor(box[2]));
-			if (!IsLeyeCenter)
-			{
-				//第一帧作为中心原点
-				LeyeCenter.x = box[0];
-				LeyeCenter.y = box[1];
-				IsLeyeCenter = true;
-				Lx.push_back(0);
-				Ly.push_back(0);
-				TimeL.push_back(FrameNum);
-				ui.customPlot_x->graph(0)->setData(TimeL, Lx);
-				ui.customPlot_y->graph(0)->setData(TimeL, Ly);
-				OldLeyeX.push_back(0);
-				OldLeyeY.push_back(0);
-			}
-			else
-			{
-				//后续相对地址是基于第一帧位置的
-				ui.customPlot_x->graph(0)->addData(FrameNum, box[0] - LeyeCenter.x);
-				ui.customPlot_y->graph(0)->addData(FrameNum, box[1] - LeyeCenter.y);
-				
-				OldLeyeX.push_back(box[0] - LeyeCenter.x);
-				OldLeyeY.push_back(box[1] - LeyeCenter.y);
-			}
-			OldFrameL.push_back(FrameNum);
+			//第一帧作为中心原点
+			LeyeCenter.x = box[0];
+			LeyeCenter.y = box[1];
+			IsLeyeCenter = true;
+			Lx.push_back(0);
+			Ly.push_back(0);
+			TimeL.push_back(FrameNum);
+			ui.customPlot_x->graph(0)->setData(TimeL, Lx);
+			ui.customPlot_y->graph(0)->setData(TimeL, Ly);
+			OldLeyeX.push_back(0);
+			OldLeyeY.push_back(0);
 		}
-		for (cv::Vec3f box : pro.Rcircles)
+		else
 		{
-			//右眼
-			ui.lcdNumber_Rx->display(floor(box[0]));
-			ui.lcdNumber_Ry->display(floor(box[1]));
-			ui.lcdNumber_Rr->display(floor(box[2]));
-			if (!IsReyeCenter)
-			{
-				ReyeCenter.x = box[0];
-				ReyeCenter.y = box[1];
-				IsReyeCenter = true;
-				Rx.push_back(0);
-				Ry.push_back(0);
-				TimeR.push_back(FrameNum);
-				ui.customPlot_x->graph(1)->setData(TimeR, Rx);
-				ui.customPlot_y->graph(1)->setData(TimeR, Ry);
-				OldReyeX.push_back(0);
-				OldReyeY.push_back(0);
-			}
-			else
-			{
-				ui.customPlot_x->graph(1)->addData(FrameNum, box[0] - ReyeCenter.x);
-				ui.customPlot_y->graph(1)->addData(FrameNum, box[1] - ReyeCenter.y);
-				OldReyeX.push_back(box[0] - ReyeCenter.x);
-				OldReyeY.push_back(box[1] - ReyeCenter.y);
-			}
-			OldFrameR.push_back(FrameNum);
+			//后续相对地址是基于第一帧位置的
+			ui.customPlot_x->graph(0)->addData(FrameNum, box[0] - LeyeCenter.x);
+			ui.customPlot_y->graph(0)->addData(FrameNum, box[1] - LeyeCenter.y);
+
+			OldLeyeX.push_back(box[0] - LeyeCenter.x);
+			OldLeyeY.push_back(box[1] - LeyeCenter.y);
 		}
+		OldFrameL.push_back(FrameNum);
+	}
+	for (cv::Vec3f box : pro.Rcircles)
+	{
+		//右眼
+		ui.lcdNumber_Rx->display(floor(box[0]));
+		ui.lcdNumber_Ry->display(floor(box[1]));
+		ui.lcdNumber_Rr->display(floor(box[2]));
+		if (!IsReyeCenter)
+		{
+			ReyeCenter.x = box[0];
+			ReyeCenter.y = box[1];
+			IsReyeCenter = true;
+			Rx.push_back(0);
+			Ry.push_back(0);
+			TimeR.push_back(FrameNum);
+			ui.customPlot_x->graph(1)->setData(TimeR, Rx);
+			ui.customPlot_y->graph(1)->setData(TimeR, Ry);
+			OldReyeX.push_back(0);
+			OldReyeY.push_back(0);
+		}
+		else
+		{
+			ui.customPlot_x->graph(1)->addData(FrameNum, box[0] - ReyeCenter.x);
+			ui.customPlot_y->graph(1)->addData(FrameNum, box[1] - ReyeCenter.y);
+			OldReyeX.push_back(box[0] - ReyeCenter.x);
+			OldReyeY.push_back(box[1] - ReyeCenter.y);
+		}
+		OldFrameR.push_back(FrameNum);
+	}
+	if (EyeNum != VEDIO_EYE)
+	{
 		ui.customPlot_x->rescaleAxes();//自动调整坐标
 		ui.customPlot_y->rescaleAxes();//自动调整坐标
-		ui.customPlot_x->replot();//重绘x坐标波形图
-		ui.customPlot_y->replot();//重绘y坐标波形图
-		if (cv::waitKey(1) == 27)//ESC的ASCII码为27
-		{
-			break;//按下ESC退出
-		}
 	}
-	cv::destroyWindow("Camera Video");//销毁窗口
+
+	ui.customPlot_x->replot();//重绘x坐标波形图
+	ui.customPlot_y->replot();//重绘y坐标波形图
+}
+//关闭摄像头
+void EyePupilLocalization::on_pushButton_closecamera_clicked()
+{
+	timer->stop();
 	ui.statusBar->showMessage(QString::fromLocal8Bit("视频处理结束"));
+	if (EyeNum == NOT_LEYE || EyeNum == ALL_EYE)
+	{
+		//此时只有右眼
+		vcapRight.release();//释放资源
+	}
+	if (EyeNum == NOT_REYE || EyeNum == ALL_EYE)
+	{
+		//此时只有左眼
+		vcapLeft.release();
+	}
+	ui.Button_closecamera->setEnabled(false);
+	ui.Button_opencamera->setEnabled(true);
 }
 //打印
 void EyePupilLocalization::on_pushButton_print_clicked()
@@ -422,5 +394,9 @@ void EyePupilLocalization::plotWight(bool IsLevel)
 		ui.customPlot_print->graph(0)->setData(OldFrameL, OldLeyeY);
 		ui.customPlot_print->graph(1)->setData(OldFrameR, OldReyeY);
 	}
+	ui.customPlot_print->rescaleAxes();//自动调整坐标
+	ui.customPlot_print->rescaleAxes();//自动调整坐标
 	ui.customPlot_print->replot();
 }
+
+
