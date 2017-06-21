@@ -112,37 +112,46 @@ void EyePupilLocalization::on_pushButton_opencamera_clicked()
 {
 	ui.statusBar->showMessage(QString::fromLocal8Bit("正在打开摄像头"));
 	
-	bool isWebCamLeft = true;
-	bool isWebCamRight = true;
 	QMessageBox::StandardButton rb = QMessageBox::question(NULL, QString::fromLocal8Bit("选择"), QString::fromLocal8Bit("是否打开本地摄像头？"), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);//提示选择打开哪一个摄像头
 	if (rb == QMessageBox::Yes)//打开本机PC上的摄像头
 	{
-		isWebCamRight = false;
+		EyeNum = NOT_REYE;
+		frameR = NoVedio;
 		if (!vcapLeft.open(0))
 		{
 			QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("没有本地摄像头"));
-			isWebCamLeft = false;
+			EyeNum = NOT_ALLEYE;
 			ui.statusBar->showMessage(NULL);
 			return;
 		}
 	}
 	else if (rb == QMessageBox::No)//打开网络摄像头
 	{
-		
+		EyeNum = ALL_EYE;
 		if (!vcapLeft.open(videoStreamAddressLeft))
 		{
 			QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("左眼摄像头连接失败"));
-			isWebCamLeft = false;
+			EyeNum = NOT_LEYE;
+			frameL = NoVedio;
 		}
 
 		if (!vcapRight.open(videoStreamAddressRight))
 		{
 			QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("右眼摄像头连接失败"));
-			isWebCamRight = false;
+			if (EyeNum == ALL_EYE)
+			{
+				EyeNum = NOT_REYE;
+			}
+			else
+			{
+				EyeNum = NOT_ALLEYE;
+			}
+			frameR = NoVedio;
 		}
 
-		if (isWebCamLeft||isWebCamRight)
+		if (EyeNum == NOT_ALLEYE)
 		{
+			//摄像头打开都不成功
 			ui.statusBar->showMessage(NULL);
 			return;
 		}
@@ -171,21 +180,10 @@ void EyePupilLocalization::on_pushButton_opencamera_clicked()
 	Lx.clear();
 	Ly.clear();
 
-	EyeNum = ALL_EYE;//假定一开始两个眼睛都有
+	//EyeNum = ALL_EYE;//假定一开始两个眼睛都有
 	IsReyeCenter = false;
 	IsLeyeCenter = false;
 	FrameNum = 0;//视频处理帧的次数
-
-	if (!isWebCamLeft)
-	{
-		frameL = NoVedio;
-		EyeNum = NOT_LEYE;
-	}
-	if (!isWebCamRight)
-	{
-		frameR = NoVedio;
-		EyeNum = NOT_REYE;
-	}
 
 	ui.customPlot_x->graph(0)->setData(TimeL, Lx);
 	ui.customPlot_y->graph(0)->setData(TimeL, Ly);
