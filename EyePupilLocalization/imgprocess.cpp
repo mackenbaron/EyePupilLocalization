@@ -249,7 +249,11 @@ cv::Mat ImgProcess::GrayDetect(cv::Mat grayimg)
 	cvtColor(grayimg, grayimg, CV_BGR2GRAY);//灰度化处理
 	medianBlur(grayimg, grayimg, 9);//中值滤波
 	cv::blur(grayimg, grayimg, cv::Size(9, 9));
-	grayout = Binary(grayimg, 50);//二值化处理
+	/*加入对比度拉伸后的程序*/
+	contrastStretch(grayimg);
+	grayout = Binary(grayimg, 20);//二值化处理
+	/*未加入对比度拉伸*/
+	//grayout = Binary(grayimg, 50);//二值化处理
 
 	//RemoveSmallRegion(grayout, grayout, 1000, 1, 0);//去除白区域
 	//RemoveSmallRegion(grayout, grayout, 1000, 0, 0);//可以不去除小面积
