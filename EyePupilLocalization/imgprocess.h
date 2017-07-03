@@ -6,12 +6,12 @@
 #include <opencv2/core/core.hpp> 
 #include "eyepupillocalization.h"
 
-#define ALL_EYE 0//摄像头双眼都在
-#define NOT_LEYE 1//摄像头没有左眼
-#define NOT_REYE 2//摄像头没有右眼
-#define NOT_ALLEYE 3//摄像头双眼都没有
-#define VEDIO_EYE 4//本地视频双眼都在
-#define VEDIO_ONLY_EYE 5//本地视频单眼
+#define ALL_EYE 5//摄像头双眼都在
+#define NOT_LEYE 2//摄像头没有左眼
+#define NOT_REYE 0//摄像头没有右眼
+#define NOT_ALLEYE 8//摄像头双眼都没有
+#define VEDIO_EYE 1//本地视频双眼都在
+#define VEDIO_ONLY_EYE 6//本地视频单眼
 
 typedef struct Box//定义圆
 {
