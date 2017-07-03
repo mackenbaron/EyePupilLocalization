@@ -87,6 +87,7 @@ void ImgProcess::Process()
 				Lpoint[0] = Lbox.x;
 				Lpoint[1] = Lbox.y;
 				Lpoint[2] = Lbox.r;
+				
 				Lcircles.push_back(Lpoint);
 				circles.push_back(Lpoint);
 			}
@@ -250,10 +251,10 @@ cv::Mat ImgProcess::GrayDetect(cv::Mat grayimg)
 	medianBlur(grayimg, grayimg, 9);//中值滤波
 	cv::blur(grayimg, grayimg, cv::Size(9, 9));
 	/*加入对比度拉伸后的程序*/
-	contrastStretch(grayimg);
-	grayout = Binary(grayimg, 20);//二值化处理
+	//contrastStretch(grayimg);
+	//grayout = Binary(grayimg, 15);//二值化处理
 	/*未加入对比度拉伸*/
-	//grayout = Binary(grayimg, 50);//二值化处理
+	grayout = Binary(grayimg, 37);//二值化处理
 
 	//RemoveSmallRegion(grayout, grayout, 1000, 1, 0);//去除白区域
 	//RemoveSmallRegion(grayout, grayout, 1000, 0, 0);//可以不去除小面积

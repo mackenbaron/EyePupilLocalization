@@ -234,13 +234,13 @@ void EyePupilLocalization::readFarme()
 	if (EyeNum == VEDIO_EYE)
 	{
 		//打开本地视频
-		pro.Start(frameAll, 1.7);
+		pro.Start(frameAll, 1.3);
 		pro.Process();
 	}
 	else
 	{
 		//实时显示
-		pro.Start(frameL, frameR, 1.7, EyeNum);
+		pro.Start(frameL, frameR, 1.3, EyeNum);
 		pro.ProcessSignal();
 	}
 
