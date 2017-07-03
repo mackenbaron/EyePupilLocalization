@@ -158,7 +158,7 @@ void ImgProcess::ProcessSignal()
 		cv::findContours(Rgrayimg, Rcontours, Rhierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_NONE);//寻找右眼轮廓
 		IsReye = true;//有右眼
 	}
-	if (EyeNum == NOT_REYE || EyeNum == ALL_EYE)
+	if (EyeNum == NOT_REYE || EyeNum == ALL_EYE || EyeNum == VEDIO_ONLY_EYE)
 	{
 		//此时没有右眼,只有左眼
 		Lgrayimg = GrayDetect(Leye);//得到灰度图,此时inimg没有被修改

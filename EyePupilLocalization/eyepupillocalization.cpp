@@ -104,8 +104,9 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 	ui.customPlot_x->graph(1)->setData(TimeR, Rx);
 	ui.customPlot_y->graph(1)->setData(TimeR, Ry);
 
-	EyeNum = VEDIO_EYE;
-	timer->start(20);
+	//EyeNum = VEDIO_EYE;//打开双眼本地视频
+	EyeNum = VEDIO_ONLY_EYE;//打开单眼本地视频
+	timer->start(30);
 }
 //打开摄像头
 void EyePupilLocalization::on_pushButton_opencamera_clicked()
@@ -192,7 +193,7 @@ void EyePupilLocalization::on_pushButton_opencamera_clicked()
 
 	ui.Button_closecamera->setEnabled(true);
 	ui.Button_opencamera->setEnabled(false);
-	timer->start(20);
+	timer->start(30);
 }
 //读取视频帧数
 void EyePupilLocalization::readFarme()
@@ -209,8 +210,18 @@ void EyePupilLocalization::readFarme()
 	}
 	if (EyeNum == VEDIO_EYE)
 	{
-		//本地视频
+		//双眼本地视频
 		if (!capture.read(frameAll))//读取视频每帧
+		{
+			timer->stop();
+			ui.statusBar->showMessage(QString::fromLocal8Bit("视频处理结束"));
+			return;//当没有帧数读取时就退出循环
+		}
+	}
+	if (EyeNum == VEDIO_ONLY_EYE)
+	{
+		//单眼本地视频
+		if (!capture.read(frameL))//读取视频每帧
 		{
 			timer->stop();
 			ui.statusBar->showMessage(QString::fromLocal8Bit("视频处理结束"));
@@ -243,7 +254,7 @@ void EyePupilLocalization::readFarme()
 		Leye = pro.OutLeye();//输出左眼
 		Limg = Mat2QImage(Leye);//将左眼MAT类型装为IMAGE类型
 	}
-	if (EyeNum == NOT_REYE)
+	if (EyeNum == NOT_REYE || EyeNum == VEDIO_ONLY_EYE)
 	{
 		//如果没有右眼
 		Rimg = NoVideoImage;
