@@ -69,6 +69,18 @@ private:
 	int LabelWidth;
 	int LabelHeight;
 
+	cv::Mat Pic_Leye;
+	cv::Mat Pic_Reye;
+
+	QImage PicImgLeye;
+	QImage PicImgReye;
+	double plx;
+	double ply;
+	double prx;
+	double pry;
+	cv::Point Lcenter;
+	cv::Point Rcenter;
+
 	void plotWight(bool IsLevel);//ªÊ÷∆≤®–Œ
 	
 };

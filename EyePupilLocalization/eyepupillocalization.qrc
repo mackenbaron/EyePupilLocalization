@@ -3,5 +3,6 @@
         <file alias="novideo">Resources/no video.png</file>
         <file>Resources/eye.ico</file>
         <file alias="NoVedio">Resources/NoVedio.jpg</file>
+        <file alias="Map">Resources/map.jpg</file>
     </qresource>
 </RCC>

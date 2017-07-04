@@ -63,6 +63,10 @@ public:
     QPushButton *Button_print;
     QPushButton *Button_opencamera;
     QPushButton *Button_closecamera;
+    QLabel *label_LeyePosition;
+    QLabel *label_ReyePosition;
+    QLabel *label_11;
+    QLabel *label_12;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -71,7 +75,7 @@ public:
     {
         if (EyePupilLocalizationClass->objectName().isEmpty())
             EyePupilLocalizationClass->setObjectName(QStringLiteral("EyePupilLocalizationClass"));
-        EyePupilLocalizationClass->resize(525, 711);
+        EyePupilLocalizationClass->resize(868, 656);
         QIcon icon;
         icon.addFile(QStringLiteral(":/EyePupilLocalization/Resources/eye.ico"), QSize(), QIcon::Normal, QIcon::Off);
         EyePupilLocalizationClass->setWindowIcon(icon);
@@ -79,7 +83,7 @@ public:
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         horizontalLayoutWidget_2 = new QWidget(centralWidget);
         horizontalLayoutWidget_2->setObjectName(QStringLiteral("horizontalLayoutWidget_2"));
-        horizontalLayoutWidget_2->setGeometry(QRect(310, 220, 191, 121));
+        horizontalLayoutWidget_2->setGeometry(QRect(320, 180, 191, 121));
         horizontalLayout_2 = new QHBoxLayout(horizontalLayoutWidget_2);
         horizontalLayout_2->setSpacing(6);
         horizontalLayout_2->setContentsMargins(11, 11, 11, 11);
@@ -129,16 +133,16 @@ public:
 
         Button_openvideo = new QPushButton(centralWidget);
         Button_openvideo->setObjectName(QStringLiteral("Button_openvideo"));
-        Button_openvideo->setGeometry(QRect(20, 10, 100, 30));
+        Button_openvideo->setGeometry(QRect(550, 30, 100, 30));
         label_10 = new QLabel(centralWidget);
         label_10->setObjectName(QStringLiteral("label_10"));
-        label_10->setGeometry(QRect(380, 50, 54, 12));
+        label_10->setGeometry(QRect(380, 10, 54, 12));
         label_Reye = new QLabel(centralWidget);
         label_Reye->setObjectName(QStringLiteral("label_Reye"));
-        label_Reye->setGeometry(QRect(310, 80, 191, 131));
+        label_Reye->setGeometry(QRect(310, 30, 191, 131));
         horizontalLayoutWidget = new QWidget(centralWidget);
         horizontalLayoutWidget->setObjectName(QStringLiteral("horizontalLayoutWidget"));
-        horizontalLayoutWidget->setGeometry(QRect(20, 220, 191, 121));
+        horizontalLayoutWidget->setGeometry(QRect(30, 180, 191, 121));
         horizontalLayout = new QHBoxLayout(horizontalLayoutWidget);
         horizontalLayout->setSpacing(6);
         horizontalLayout->setContentsMargins(11, 11, 11, 11);
@@ -188,33 +192,45 @@ public:
 
         label_9 = new QLabel(centralWidget);
         label_9->setObjectName(QStringLiteral("label_9"));
-        label_9->setGeometry(QRect(90, 50, 54, 12));
+        label_9->setGeometry(QRect(90, 10, 54, 12));
         label_Leye = new QLabel(centralWidget);
         label_Leye->setObjectName(QStringLiteral("label_Leye"));
-        label_Leye->setGeometry(QRect(40, 80, 191, 131));
+        label_Leye->setGeometry(QRect(40, 30, 191, 131));
         customPlot_x = new QCustomPlot(centralWidget);
         customPlot_x->setObjectName(QStringLiteral("customPlot_x"));
-        customPlot_x->setGeometry(QRect(20, 350, 481, 141));
+        customPlot_x->setGeometry(QRect(30, 320, 830, 140));
         customPlot_print = new QCustomPlot(customPlot_x);
         customPlot_print->setObjectName(QStringLiteral("customPlot_print"));
         customPlot_print->setEnabled(true);
-        customPlot_print->setGeometry(QRect(120, 30, 700, 400));
+        customPlot_print->setGeometry(QRect(150, 30, 700, 400));
         customPlot_y = new QCustomPlot(centralWidget);
         customPlot_y->setObjectName(QStringLiteral("customPlot_y"));
-        customPlot_y->setGeometry(QRect(20, 510, 481, 141));
+        customPlot_y->setGeometry(QRect(30, 480, 830, 140));
         Button_print = new QPushButton(centralWidget);
         Button_print->setObjectName(QStringLiteral("Button_print"));
-        Button_print->setGeometry(QRect(400, 10, 100, 30));
+        Button_print->setGeometry(QRect(550, 80, 100, 30));
         Button_opencamera = new QPushButton(centralWidget);
         Button_opencamera->setObjectName(QStringLiteral("Button_opencamera"));
-        Button_opencamera->setGeometry(QRect(150, 10, 100, 30));
+        Button_opencamera->setGeometry(QRect(720, 30, 100, 30));
         Button_closecamera = new QPushButton(centralWidget);
         Button_closecamera->setObjectName(QStringLiteral("Button_closecamera"));
-        Button_closecamera->setGeometry(QRect(270, 10, 100, 30));
+        Button_closecamera->setGeometry(QRect(720, 80, 100, 30));
+        label_LeyePosition = new QLabel(centralWidget);
+        label_LeyePosition->setObjectName(QStringLiteral("label_LeyePosition"));
+        label_LeyePosition->setGeometry(QRect(540, 180, 130, 130));
+        label_ReyePosition = new QLabel(centralWidget);
+        label_ReyePosition->setObjectName(QStringLiteral("label_ReyePosition"));
+        label_ReyePosition->setGeometry(QRect(720, 180, 130, 130));
+        label_11 = new QLabel(centralWidget);
+        label_11->setObjectName(QStringLiteral("label_11"));
+        label_11->setGeometry(QRect(590, 140, 54, 12));
+        label_12 = new QLabel(centralWidget);
+        label_12->setObjectName(QStringLiteral("label_12"));
+        label_12->setGeometry(QRect(770, 140, 54, 12));
         EyePupilLocalizationClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(EyePupilLocalizationClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 525, 23));
+        menuBar->setGeometry(QRect(0, 0, 868, 23));
         EyePupilLocalizationClass->setMenuBar(menuBar);
         mainToolBar = new QToolBar(EyePupilLocalizationClass);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -249,6 +265,10 @@ public:
         Button_print->setText(QApplication::translate("EyePupilLocalizationClass", "\346\211\223\345\215\260", Q_NULLPTR));
         Button_opencamera->setText(QApplication::translate("EyePupilLocalizationClass", "\346\211\223\345\274\200\346\221\204\345\203\217\345\244\264", Q_NULLPTR));
         Button_closecamera->setText(QApplication::translate("EyePupilLocalizationClass", "\345\205\263\351\227\255\346\221\204\345\203\217\345\244\264", Q_NULLPTR));
+        label_LeyePosition->setText(QString());
+        label_ReyePosition->setText(QString());
+        label_11->setText(QApplication::translate("EyePupilLocalizationClass", "\345\267\246\347\234\274", Q_NULLPTR));
+        label_12->setText(QApplication::translate("EyePupilLocalizationClass", "\345\217\263\347\234\274", Q_NULLPTR));
     } // retranslateUi
 
 };

@@ -35,10 +35,10 @@ QImage Mat2QImage(const cv::Mat& mat)
 	}
 }
 
-cv::Mat QImage2Mat(const QImage& image)
+cv::Mat QImage2Mat(const QImage image)
 {
 	cv::Mat mat;
-	qDebug() << image.format();
+	//qDebug() << image.format();
 	switch (image.format())
 	{
 	case QImage::Format_ARGB32:

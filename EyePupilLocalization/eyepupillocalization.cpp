@@ -104,6 +104,16 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 	ui.customPlot_x->graph(1)->setData(TimeR, Rx);
 	ui.customPlot_y->graph(1)->setData(TimeR, Ry);
 
+	//坐标初始化
+	Pic_Leye = cv::imread(".\\Resources\\map.jpg", -1);
+	Pic_Reye = cv::imread(".\\Resources\\map.jpg", -1);
+	cv::resize(Pic_Leye, Pic_Leye, cv::Size(130, 130));
+	cv::resize(Pic_Reye, Pic_Reye, cv::Size(130, 130));
+	PicImgReye = Mat2QImage(Pic_Reye);
+	ui.label_ReyePosition->setPixmap(QPixmap::fromImage(PicImgReye));
+	PicImgLeye = Mat2QImage(Pic_Leye);
+	ui.label_LeyePosition->setPixmap(QPixmap::fromImage(PicImgLeye));
+
 	//EyeNum = VEDIO_EYE;//打开双眼本地视频
 	EyeNum = VEDIO_ONLY_EYE;//打开单眼本地视频
 	timer->start(30);
@@ -190,6 +200,17 @@ void EyePupilLocalization::on_pushButton_opencamera_clicked()
 	ui.customPlot_y->graph(0)->setData(TimeL, Ly);
 	ui.customPlot_x->graph(1)->setData(TimeR, Rx);
 	ui.customPlot_y->graph(1)->setData(TimeR, Ry);
+
+	//坐标初始化
+	Pic_Leye = cv::imread(".\\Resources\\map.jpg", -1);
+	Pic_Reye = cv::imread(".\\Resources\\map.jpg", -1);
+	cv::resize(Pic_Leye, Pic_Leye, cv::Size(130, 130));
+	cv::resize(Pic_Reye, Pic_Reye, cv::Size(130, 130));
+	PicImgReye = Mat2QImage(Pic_Reye);
+	ui.label_ReyePosition->setPixmap(QPixmap::fromImage(PicImgReye));
+	PicImgLeye = Mat2QImage(Pic_Leye);
+	ui.label_LeyePosition->setPixmap(QPixmap::fromImage(PicImgLeye));
+
 
 	ui.Button_closecamera->setEnabled(true);
 	ui.Button_opencamera->setEnabled(false);
@@ -296,8 +317,18 @@ void EyePupilLocalization::readFarme()
 
 			OldLeyeX.push_back(box[0] - LeyeCenter.x);
 			OldLeyeY.push_back(box[1] - LeyeCenter.y);
+
+			//左眼定位坐标
+			plx = (box[0] - LeyeCenter.x) * 1.5 + 65;
+			ply = (box[1] - LeyeCenter.y) * 1.5 + 65;
+			Lcenter.x = plx;
+			Lcenter.y = ply;
+			cv::circle(Pic_Leye, Lcenter, 1, cv::Scalar(255, 0, 0), -1, 8);//画瞳孔中心 
+			PicImgLeye = Mat2QImage(Pic_Leye);
+			ui.label_LeyePosition->setPixmap(QPixmap::fromImage(PicImgLeye));
 		}
 		OldFrameL.push_back(FrameNum);
+		
 	}
 	for (cv::Vec3f box : pro.Rcircles)
 	{
@@ -324,6 +355,15 @@ void EyePupilLocalization::readFarme()
 			ui.customPlot_y->graph(1)->addData(FrameNum, box[1] - ReyeCenter.y);
 			OldReyeX.push_back(box[0] - ReyeCenter.x);
 			OldReyeY.push_back(box[1] - ReyeCenter.y);
+
+			//右眼定位
+			prx = (box[0] - ReyeCenter.x) * 1.5 + 65;
+			pry = (box[1] - ReyeCenter.y) * 1.5 + 65;
+			Rcenter.x = prx;
+			Rcenter.y = pry;
+			cv::circle(Pic_Reye, Rcenter, 1, cv::Scalar(255, 0, 0), -1, 8);//画瞳孔中心 
+			PicImgReye = Mat2QImage(Pic_Reye);
+			ui.label_ReyePosition->setPixmap(QPixmap::fromImage(PicImgReye));
 		}
 		OldFrameR.push_back(FrameNum);
 	}
