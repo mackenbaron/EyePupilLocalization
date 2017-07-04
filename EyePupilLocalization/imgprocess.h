@@ -62,8 +62,8 @@ public:
 	ImgProcess(cv::Mat image, double ratio = 1.3) :inimg(image), EyeRatio(ratio) {}//构造函数
 	ImgProcess(cv::Mat leye, cv::Mat reye, double ratio = 1.3, int eye_num = 2) :Leye(leye), Reye(reye), EyeRatio(ratio), EyeNum(eye_num) {}
 
-	void Start(cv::Mat, double ratio = 1.3);
-	void Start(cv::Mat, cv::Mat, double ratio = 1.3, int eye_num = 2);
+	void Start(cv::Mat, double ratio = 1.3);//直接传进来双眼图像
+	void Start(cv::Mat, cv::Mat, double ratio = 1.3, int eye_num = 2);//两个眼图像分别传进来
 	void Process();//双眼整体输入识别
 	void ProcessSignal();//双眼分别输入识别
 	cv::Mat Outputimg();//输出结果  

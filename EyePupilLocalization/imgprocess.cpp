@@ -129,7 +129,6 @@ void ImgProcess::Process()
 	}
 	else
 	{
-		//没有霍夫圆
 		outimg = inimg;
 	}
 	DivideEye(outimg);//左右眼再次分割,此时已经有了霍夫圆
@@ -254,7 +253,7 @@ cv::Mat ImgProcess::GrayDetect(cv::Mat grayimg)
 	//contrastStretch(grayimg);
 	//grayout = Binary(grayimg, 15);//二值化处理
 	/*未加入对比度拉伸*/
-	grayout = Binary(grayimg, 45);//二值化处理
+	grayout = Binary(grayimg, 37);//二值化处理
 
 	//RemoveSmallRegion(grayout, grayout, 1000, 1, 0);//去除白区域
 	//RemoveSmallRegion(grayout, grayout, 1000, 0, 0);//可以不去除小面积

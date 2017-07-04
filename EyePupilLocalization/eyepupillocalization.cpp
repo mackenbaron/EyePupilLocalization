@@ -75,7 +75,8 @@ void EyePupilLocalization::on_pushButton_openvideo_clicked()
 	TESTtime = QDateTime::currentDateTime();//获取系统现在的时间
 	str_TESTtime = TESTtime.toString("yyyy-MM-dd hh:mm:ss ddd"); //设置显示格式
 	double numFrames = capture.get(CV_CAP_PROP_FRAME_COUNT);
-	OldFrameNum = numFrames;
+	//OldFrameNum = numFrames;
+	OldFrameNum = 0;
 	OldFrameR.clear();//清空上一条记录
 	OldFrameL.clear();
 	OldReyeX.clear();
@@ -221,12 +222,12 @@ void EyePupilLocalization::readFarme()
 {
 	if (EyeNum == NOT_LEYE || EyeNum == ALL_EYE)
 	{
-		//此时只有右眼
+		//此时有右眼
 		vcapRight >> frameR;
 	}
 	if (EyeNum == NOT_REYE || EyeNum == ALL_EYE)
 	{
-		//此时只有左眼
+		//此时有左眼
 		vcapLeft >> frameL;
 	}
 	if (EyeNum == VEDIO_EYE)
@@ -255,13 +256,13 @@ void EyePupilLocalization::readFarme()
 	if (EyeNum == VEDIO_EYE)
 	{
 		//打开本地视频
-		pro.Start(frameAll, 1.3);
+		pro.Start(frameAll, 1.5);
 		pro.Process();
 	}
 	else
 	{
 		//实时显示
-		pro.Start(frameL, frameR, 1.3, EyeNum);
+		pro.Start(frameL, frameR, 1.5, EyeNum);
 		pro.ProcessSignal();
 	}
 
@@ -286,7 +287,7 @@ void EyePupilLocalization::readFarme()
 		Rimg = Mat2QImage(Reye);//将右眼MAT类型装为IMAGE类型
 	}
 
-	ui.label_Leye->setPixmap(QPixmap::fromImage(Limg));//在程序界面将左眼眼显示出来
+	ui.label_Leye->setPixmap(QPixmap::fromImage(Limg));//在程序界面将左眼显示出来
 	ui.label_Reye->setPixmap(QPixmap::fromImage(Rimg));//在程序界面将右眼显示出来
 
 	for (cv::Vec3f box : pro.Lcircles)
